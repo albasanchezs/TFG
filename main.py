@@ -1,5 +1,6 @@
 import errno
 import time
+import configparser
 import bs4
 from bs4 import BeautifulSoup
 import requests
@@ -279,12 +280,12 @@ def descarga_pdf(url_pdfs,identificadores,ubicacion):
 def paso(pdf_file):
      read_pdf =PyPDF2.PdfReader(pdf_file)
      number_of_pages =len(read_pdf.pages)
-     """
-          #Aqui solo lee la primera pagina de todos los documentos pero no los ugarda
-          page = read_pdf.pages[0]
-          page_content = page.extract_text()
-          print(page_content)
-     """
+     
+     #     #Aqui solo lee la primera pagina de todos los documentos pero no los ugarda
+     #     page = read_pdf.pages[0]
+     #     page_content = page.extract_text()
+     #     print(page_content)
+     
      import pdb; pdb.set_trace()
      for u in range(number_of_pages):
           page= read_pdf.pages[u]
@@ -322,33 +323,22 @@ def leer_txt(url_pdfs,identificadores,ubicacion,df_final):
           except Exception as e:
                print("No convertido")
      df_final['Contenido'] = dic
-import pyarrow
-import fastparquet
-from openpyxl import Workbook
+
 if __name__ == '__main__':
      #url de prueba
      url_tabla_uc3m = 'https://www.educacion.gob.es/ruct/listaestudios?codigoEstado=&consulta=1&d-1335801-p=3&ambito=&codigoTipo=&descripcionEstudio=&codigoRama=&codigoEstudio=&situacion=&buscarHistorico=N&action:listaestudios=Consultar&actual=estudios&codigoSubTipo=&codigoUniversidad=036'
-    #URLS:
-     url_tablas = 'https://www.educacion.gob.es/ruct/listaestudios?codigoEstado=&consulta=1&d-1335801-p=codigotablas&ambito=&codigoTipo=&descripcionEstudio=&codigoRama=&codigoEstudio=&situacion=&buscarHistorico=N&action:listaestudios=Consultar&actual=estudios&codigoSubTipo=&codigoUniversidad=universidad'
-     url_tablas = 'https://www.educacion.gob.es/ruct/listaestudios?codigoEstado=&consulta=1&d-1335801-p=codigotablas&ambito=&codigoTipo=&descripcionEstudio=&codigoRama=&codigoEstudio=&situacion=&buscarHistorico=N&action:listaestudios=Consultar&actual=estudios&codigoSubTipo=&codigoUniversidad=036'
 
-     url_basicos = 'https://www.educacion.gob.es/ruct/solicitud/detalles?actual=menu.solicitud.basicos&cod=codigoin'
-     url_competencias = 'https://www.educacion.gob.es/ruct/solicitud/competencias?actual=menu.solicitud.competencias.palabratipocomp&tipo=tipodecomp&cod=codigoin'
-     url_calendario = 'https://www.educacion.gob.es/ruct/solicitud/calendarioImplantacion!cronograma?actual=menu.solicitud.calendarioImplantacion.cronograma&cod=codigoin'
-     url_modulos = 'https://www.educacion.gob.es/ruct/solicitud/modulos?actual=menu.solicitud.planificacion.modulos&cod=codigoin'
-     url_metodologia = 'https://www.educacion.gob.es/ruct/solicitud/metodologias?actual=menu.solicitud.planificacion.metodologias&cod=codigoin'
-     url_sistemaforma = 'https://www.educacion.gob.es/ruct/solicitud/sistemas?actual=menu.solicitud.planificacion.sistemas&cod=codigoin'
-     url_pdfs = 'https://www.educacion.gob.es/ruct/solicitud/descripcionplan?actual=menu.solicitud.planificacion.descripcion&cod=codigoin'
      lis_titulo = []
      lis_uni = []
      lis_estado = []
      dic={}
-     df_prueba = pd.DataFrame()
-     list_ident =['E','T']
-     ubicacion= "C:\\Users\\asanchezsanc\\Desktop\\personal\\Proyectonuevo\\des_pdfs\\"
+     #df_prueba = pd.DataFrame()
+     ubicacion= "C:\\Users\\asanchezsanc\\Desktop\\personal\\Proyectonuevo\\des_pdfs\\" #intentar que esta carpeta este dentro del proyecto
+     """
      dic1={}
      dic2={}
-     """
+     configuracion = configparser.ConfigParser()
+     configuracion.read('inconfig.cfg')
      #PRUEBAS:
      identificadores = creacion_tablas(url_tablas, lis_titulo, lis_estado,dic1,dic2)
      #df_prueba['Universidad'] = dic1
