@@ -372,12 +372,56 @@ if __name__ == '__main__':
      leer_txt(url_pdfs,identificadores,ubicacion,df_prueba)
      df_prueba.to_excel('Prueba2.xlsx')
      print('Terminado')
-     """
      identificadores = creacion_tablas(url_tablas, lis_titulo, lis_estado, dic1, dic2)
      descarga_pdf(url_pdfs, identificadores, ubicacion)
+     """
+     #Forma para guardar tablas y texto plano.
+     import pdfplumber
+     import pdfplumber
 
-"""
-creacion de tablas coge todos los identificdores una y otra vez, tengo que hacerlo en una función a parte
-"""
+     pdf_file = "C:\\Users\\asanchezsanc\\Desktop\\personal\\Proyectonuevo\\des_pdfs\\25001202020020501.pdf"
+     pdfinstance = pdfplumber.open(pdf_file)
+     pdf = pdfplumber.open(pdf_file)
+     pdf_text = []
+
+
+     def curves_to_edges(cs):
+          edges = []
+          for c in cs:
+               edges += pdfplumber.utils.rect_to_edges(c)
+          return edges
+
+
+     for i in range(len(pdf.pages)):
+          p = pdf.pages[i]
+
+          ts = {
+               "vertical_strategy": "explicit",
+               "horizontal_strategy": "explicit",
+               "explicit_vertical_lines": curves_to_edges(p.curves) + p.edges,
+               "explicit_horizontal_lines": curves_to_edges(p.curves) + p.edges,
+          }
+          bboxes = [table.bbox for table in p.find_tables(table_settings=ts)]
+
+
+          def not_within_bboxes(obj):
+               def obj_in_bbox(_bbox):
+                    v_mid = (obj["top"] + obj["bottom"]) / 2
+                    h_mid = (obj["x0"] + obj["x1"]) / 2
+                    x0, top, x1, bottom = _bbox
+                    return (h_mid >= x0 and (h_mid <= x1) and (v_mid > top) and (v_mid < bottom))
+
+               return not any(obj_in_bbox(__bbox) for __bbox in bboxes)
+
+
+          # print(page_text)
+          # page_text = p.filter(not_within_bboxes).extract_text().splitlines()
+
+          # Esto sería el texto
+          page_text = p.filter(not_within_bboxes).extract_text()
+
+          # Esto serían las tablas
+          # page_table=pdf_text.extend(page_text)
+          # print(p.extract_table())
 
 #argparse
