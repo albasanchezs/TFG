@@ -1,8 +1,12 @@
+import pandas as pd
+
 import datos_web
 import datos_generales
 import main
 import errno
 import time
+import tabula
+from tabula import read_pdf
 from bs4 import BeautifulSoup
 import requests
 import re
@@ -41,17 +45,19 @@ def not_within_bboxes(obj,bboxes):
 
     return not any(obj_in_bbox(__bbox) for __bbox in bboxes)
 """
-def des_text_y_tabla(url_pdfs, identificadores, ubicacion,df_final):
+def des_text(url_pdfs, identificadores, ubicacion,df_final):
     dic_text={}
-    dic_table={}
+  #  dic_table={}
     #descarga_pdf(url_pdfs, identificadores, ubicacion)
     for iden in identificadores:
         clear_text = ""
-        clear_table = []
+       # clear_table = []
         try:
+
              pdf_file = ubicacion + str(iden)+".pdf"
              pdfinstance = pdfplumber.open(pdf_file)
              pdf = pdfplumber.open(pdf_file)
+
              for i in range(len(pdf.pages)):
                 p = pdf.pages[i]
 
@@ -76,12 +82,29 @@ def des_text_y_tabla(url_pdfs, identificadores, ubicacion,df_final):
                 page_text = p.filter(not_within_bboxes).extract_text()
                 page_text = re.sub('(http[s]?:\/\/|www\.)[^\s]+', '', page_text)
                 clear_text +=page_text
-                clear_table.append(p.extract_table())
+            #    clear_table.append(p.extract_table())
              dic_text[iden]=clear_text
-             dic_table[iden] = clear_table
+            # clear_table.append(p.extract_table())
+            # dic_table[iden] = clear_table
         except Exception as e:
             print("no encontrado")
             dic_text[iden] = "No encontrado"
-            dic_table[i] = "No hay tablas"
+            #dic_table[i] = "No hay tablas"
     df_final['Texto'] = dic_text
-    df_final['Tablas'] = dic_table
+   # df_final['Tablas_diferente'] = dic_table
+
+
+def des_tabla(url_pdfs, identificadores, ubicacion,df_final):
+    dic_tabla={}
+    for iden in identificadores:
+        clear_text = ""
+        lista_tabla = []
+        try:
+            df=read_pdf(ubicacion + str(iden) + ".pdf", pages="all", multiple_tables=True, encoding='latin-1')
+            for u in range(len(df)):
+                lista_tabla.append(df[u].to_numpy().transpose().tolist())
+            dic_tabla[iden] = lista_tabla
+        except Exception as e:
+            print("no encontrado")
+    df_final['Tabla']=dic_tabla
+
