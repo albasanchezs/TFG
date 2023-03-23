@@ -66,5 +66,3 @@ if __name__ == '__main__':
      """
 
 #argparse
-#mirar los margenes por qué se leen (esto no consigo como hacerlo)
-#tabla solucionado mirar los margenes
