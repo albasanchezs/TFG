@@ -6,6 +6,7 @@ import main
 import errno
 import time
 import tabula
+import contractions
 from tabula import read_pdf
 from bs4 import BeautifulSoup
 import requests
@@ -19,6 +20,7 @@ import pdfplumber
 
 def descarga_pdf(url_pdfs, identificadores, ubicacion):
     for i in identificadores:
+        time.sleep(1)
         descargas = requests.get(re.sub('codigoin', i, url_pdfs))
         soup_pdfs = BeautifulSoup(descargas.text, 'lxml')
         try:
@@ -45,12 +47,17 @@ def not_within_bboxes(obj,bboxes):
 
     return not any(obj_in_bbox(__bbox) for __bbox in bboxes)
 """
+def limpieza(text):
+    page_text = re.sub('(http[s]?:\/\/|www\.)[^\s]+', '', text)
+    page_text = re.sub("r'https://\S+|www\.\S+'", '', page_text)
+    expanded_text = contractions.fix(page_text).lower()
+    return expanded_text
 def des_text(url_pdfs, identificadores, ubicacion,df_final):
     dic_text={}
-  #  dic_table={}
-    #descarga_pdf(url_pdfs, identificadores, ubicacion)
+    #dic_table={}
+    descarga_pdf(url_pdfs, identificadores, ubicacion)
     for iden in identificadores:
-        clear_text = ""
+        total_text = ""
        # clear_table = []
         try:
 
@@ -70,20 +77,23 @@ def des_text(url_pdfs, identificadores, ubicacion,df_final):
                 bboxes = [table.bbox for table in p.find_tables(table_settings=ts)]
                 # print(page_text)
                 # page_text = p.filter(not_within_bboxes).extract_text().splitlines()
+                #x1 x0 top y bottom suele tener valores de margenes de 25
+                #osea hay 25 algo entre el final de la pagina y la letra
+
                 def not_within_bboxes(obj):
                     def obj_in_bbox(_bbox):
                         v_mid = (obj["top"] + obj["bottom"]) / 2
                         h_mid = (obj["x0"] + obj["x1"]) / 2
                         x0, top, x1, bottom = _bbox
-                        return (h_mid >= x0 and (h_mid <= x1) and (v_mid > top) and (v_mid < bottom))
+                        return (h_mid >=x0 and (h_mid < x1) and (v_mid > top) and (v_mid < bottom))
 
                     return not any(obj_in_bbox(__bbox) for __bbox in bboxes)
                 #Esto sería el texto
                 page_text = p.filter(not_within_bboxes).extract_text()
-                page_text = re.sub('(http[s]?:\/\/|www\.)[^\s]+', '', page_text)
-                clear_text +=page_text
+                print(page_text)
+                #total_text += limpieza(page_text)
             #    clear_table.append(p.extract_table())
-             dic_text[iden]=clear_text
+             dic_text[iden]=total_text
             # clear_table.append(p.extract_table())
             # dic_table[iden] = clear_table
         except Exception as e:

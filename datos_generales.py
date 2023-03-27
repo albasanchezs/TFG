@@ -7,61 +7,54 @@ from bs4 import BeautifulSoup
 import requests
 import re
 import pandas as pd
+
 #1. Primera parte:
 
 #Extrae todos los identificativos de todas las universidades que hay en la web y lo introduce en una lista
 def universidades(opciones):
-     url_universidades = requests.get('https://www.educacion.gob.es/ruct/consultaestudios?actual=estudios')
-     soupuni = BeautifulSoup(url_universidades.text, 'lxml')
-     listopc=soupuni.find(id ='codigoUniversidad').find_all('option')
-     for elem in listopc:
-          if elem['value'] !="":
-               opciones.append(elem['value'])
-
+     soup = BeautifulSoup( requests.get('https://www.educacion.gob.es/ruct/consultaestudios?actual=estudios').text, 'lxml')
+     opciones=[elem['value'] for elem in soup.find(id ='codigoUniversidad').find_all('option') if elem['value'] !="" ]
      return opciones
 
 #Creacion de la tabla iniciar de la url que se le pasa y guarda nombre, uni,estado.
 
 def tabla_inicial(url_uni,cad,identificadores,dic1,dic2):
-     listanumeros = []
-     #while num > 0:
+     numtablas = []
+     #while num > 5:
      num=cad
-     while num>5:
-          listanumeros.append(str(num))
+     while num>0:
+          numtablas.append(str(num))
           num = num - 1
-     for i in listanumeros:
-          ex = requests.get(re.sub('codigotablas', i, url_uni))
-          soupprincipal = BeautifulSoup(ex.text, 'lxml')
-          table = soupprincipal.select('table')[0]
-          df_tabla = pd.read_html(str(table))[0]
-          for codigoentabla in df_tabla["Código"]:
-               for codigoiden in identificadores:
-                    u=codigoiden[0:7]
-                    if str(codigoentabla) == u:
-                         dic1[codigoiden]=df_tabla.loc[df_tabla['Código']==codigoentabla]['Universidad'].tolist()
-                         dic2[codigoiden]=df_tabla.loc[df_tabla['Código'] == codigoentabla]['Estado'].tolist()
+     for i in numtablas:
+          soupprincipal = BeautifulSoup(requests.get(re.sub('codigotablas', i, url_uni)).text, 'lxml')
+          try:
+               df_tabla = pd.read_html(str(soupprincipal.select('table')[0]))[0]
+               for codigoentabla in df_tabla["Código"]:
+                    for codigoiden in identificadores:
+                         if str(codigoentabla) == codigoiden[0:7]:
+                              dic1[codigoiden]=df_tabla.loc[df_tabla['Código']==codigoentabla]['Universidad'].tolist()
+                              dic2[codigoiden]=df_tabla.loc[df_tabla['Código'] == codigoentabla]['Estado'].tolist()
+          except Exception as e:
+               print('Aqui no hay dato')
 
 #Creacion de identificadores para los urls: dado el numero lee tablas del numero hasta 1 y todos sus identificadores de la url que te manda
 def creacion_identificadores(num,url_tablas):
      identificadores=[]
-     listanumeros = []
-     #while num > 0:
-     while num > 5:
-          listanumeros.append(str(num))
+     numtablas = []
+     #while num > 5:
+     while num > 0:
+          numtablas.append(str(num))
           num = num - 1
-     for i in listanumeros:
-          ex = requests.get(re.sub('codigotablas', i, url_tablas))
-          soupprincipal = BeautifulSoup(ex.text, 'lxml')
+     for i in numtablas:
+          soupprincipal = BeautifulSoup(requests.get(re.sub('codigotablas', i, url_tablas)).text, 'lxml')
           enlace_siguiente = soupprincipal.find_all(class_="ver")
-          listsep = []
           cadenain ='cod='
           cadenafin ='&amp'
           for sep in enlace_siguiente:
-               i=str(sep)
-               indice1 = i.index(cadenain)
-               indice2 = i.index(cadenafin)
+               indice1 = str(sep).index(cadenain)
+               indice2 = str(sep).index(cadenafin)
                # mirar esto del indice
-               subcadena = i[indice1 + 4:indice2]
+               subcadena = str(sep)[indice1 + 4:indice2]
                if subcadena != None:
                     identificadores.append(subcadena)
      return identificadores
@@ -70,19 +63,18 @@ def creacion_identificadores(num,url_tablas):
 #lectura de identificadores de todas las universidades de todas las tablas: Por cada universidad lee el numero max de tabla
 #saca todos los identificativos de esa universidad y los concatena con los que ya tiene.
 
-def creacion_tablas(url_tabla,df_final):
+def creacion_tablas(url_tabla,df,opciones):
      dic1={}
      dic2={}
      identificadores =[]
-     opciones = []
      cadena=""
-     opciones=universidades(opciones)
-     opciones=['036'] #prueba que solo lee la de catalunya y la de la uc3m
-     for i in opciones:
-          url_uni = re.sub('universidad', i, url_tabla)
-          text_url = requests.get(url_uni)
-          soup = BeautifulSoup(text_url.text, 'lxml')
-          num = soup.findAll(class_="pagelinks")
+     cad=1
+     url_uni = re.sub('universidad', opciones, url_tabla)
+     soup = BeautifulSoup(requests.get(re.sub('universidad', opciones, url_tabla)).text, 'lxml')
+     num = soup.findAll(class_="pagelinks")
+     if not num:
+          cad=1
+     else:
           for i in num:
                y = i.find_all('a')
                cadena = y[len(y) - 1]
@@ -91,11 +83,14 @@ def creacion_tablas(url_tabla,df_final):
           indice2 = cadena.index("&amp;ambito=&amp;")
 
           # mirar esto del indice
-          cad = cadena[indice1 + 3:indice2]
-          cad = int(cad)
-          cad = 6 #aqui debería estar num pero se me hace muy largo
-          identificadores += creacion_identificadores(cad, url_uni)
-          tabla_inicial(url_uni,cad,creacion_identificadores(cad, url_uni),dic1,dic2)
-     df_final['Universidad']= dic1
-     df_final['Estado'] = dic2
+          cad = int(cadena[indice1 + 3:indice2])
+          #cad = 6 #aqui debería estar num pero se me hace muy largo
+          identificadores = creacion_identificadores(cad, url_uni)
+     tabla_inicial(url_uni,cad,creacion_identificadores(cad, url_uni),dic1,dic2)
+     if not dic1 and not dic2:
+          df['Universidad'] = "No encontrado"
+          df['Estado'] = "No encontrado"
+     else:
+          df['Universidad']= dic1
+          df['Estado'] = dic2
      return identificadores
