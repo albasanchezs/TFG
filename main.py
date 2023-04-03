@@ -21,62 +21,34 @@ import main
 if __name__ == '__main__':
      configuracion = configparser.ConfigParser()
      configuracion.read('inconfig.cfg')
-     dic={}
      df_final = pd.DataFrame()
      ubicacion = '.\\pdf_output\\'
      opciones=[]
      opciones = datos_generales.universidades(opciones)
-     print(opciones)
-     #for op in opciones:
-     #     df_uni = pd.DataFrame()
-     #     identificadores = datos_generales.creacion_tablas(configuracion['principal']['url'],df_uni,op)
-     """
-          datos_web.datos_basicos(configuracion['basico']['url'], identificadores,df_uni)
-          print('2')
-          time.sleep(1)
-          datos_web.datos_competencias(configuracion['competencias']['url'], identificadores, df_uni, configuracion['competencias']['tipo'])
-          print('3')
-          time.sleep(1)
-          datos_web.datos_calendarios(configuracion['calendario']['url'], identificadores, df_uni)
-          print('4')
-          time.sleep(1)
-          datos_web.datos_modulo(configuracion['modulo']['url'], identificadores, df_uni)
-          print('5')
-          time.sleep(1)
-          datos_web.datos_metodologia(configuracion['metodologia']['url'], identificadores, df_uni)
-          print('6')
-          time.sleep(1)
-          datos_web.datos_sistemas(configuracion['sistemaforma']['url'], identificadores, df_uni)
-          print('7')
-          time.sleep(1)
-          descarga_web.des_text(configuracion['pdf']['url'], identificadores, ubicacion, df_uni)
-          print('8')
-          descarga_web.des_tabla(configuracion['pdf']['url'], identificadores, ubicacion, df_uni)
-          
-          df_final=pd.concat([df_final,df_uni])
-          # Guardado y leido en parquet
+     df = pd.DataFrame()
 
-          df_final.to_parquet('Data.parquet')
-          print(pd.read_parquet('Data.parquet'))
-          time.sleep(4)
-          print("---------------------------")
-          """
+     for op in opciones:
+         op='036'
+         list = datos_generales.creacion_tablas(configuracion['principal']['url'], op)
+         for i in list[0]:
+            i='25029222013071801'
+            df_id=pd.DataFrame()
+            datos_generales.tabla_inicial(configuracion['principal']['url'],i, df_id, op, list[1])
 
-     """
-     #PRUEBAS
-     #identificadores = ['25000482019030501']
-     #identificadores = '25000482019030501'
-     #descarga_web.des_text(configuracion['pdf']['url'], identificadores, ubicacion, df_prueba)
-     #print(df_prueba['Texto'].iloc[0])
-
-     #Guardado y leido en parquet
-     df_prueba.to_parquet('data.parquet')
-     print(pd.read_parquet('data.parquet'))
+            datos_web.datos_basicos(configuracion['basico']['url'], i, df_id)
+            datos_web.datos_competencias(configuracion['competencias']['url'], i, df_id, configuracion['competencias']['tipo'])
+        #comprobar si ya esta guardado el dato si es asi pasar al siguiente mirar el identificador
 
 
-     #Guardado en una tabla de excel 
-     df_prueba.to_excel('Prueba2.xlsx')
+            """
+            df=pd.concat([df_id,df])
+            # Guardado y leido en parquet
+            df.to_parquet('data.parquet')
+            print(pd.read_parquet('data.parquet'))
+            """
 
-     """
-#argparse
-# ir metiendo cada universidad una vez hace la lectura
+            """
+            # Guardado en una tabla de excel 
+            df.to_excel('Prueba.xlsx')
+            """
+#print(pd.read_parquet('data.parquet').iloc[2])

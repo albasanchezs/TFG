@@ -13,45 +13,33 @@ import lxml
 
 #Datos basicos
 
-def datos_basicos(url_basicos,identificadores,df):
-     dic ={}
-     for i in identificadores:
-               time.sleep(1)
-               soup_datos_basicos = BeautifulSoup(requests.get(re.sub('codigoin',i,url_basicos)).text, 'lxml')
+def datos_basicos(url_basicos,id,df):
+     dic={}
+     time.sleep(1)
+     soup = BeautifulSoup(requests.get(re.sub('codigoin',id,url_basicos)).text, 'lxml')
 
-               try:
-                    inputTag0 = soup_datos_basicos.findAll(attrs={"name": "denominacion"})[0]['value']
-                    #dic_ttitulo[i]=output0
-               except Exception as e:
-                    inputTag0 = 'No encontrado'
-               try:
-                    inputTag = soup_datos_basicos.findAll(attrs={"name": "conjunto"})[0]['value']
-                    #dic_conjungo[i]=output
-               except Exception as e:
-                    inputTag='No encontrado'
+     try: nom = soup.findAll(attrs={"name": "denominacion"})[0]['value']
+     except Exception as e:  nom = 'No encontrado'
 
-               try:
-                    inputTag1 = soup_datos_basicos.findAll(attrs={"name": "rama.codigo"})[0]['value']
-               except Exception as e:
-                    inputTag1='No encontrado'
+     try: conju = soup.findAll(attrs={"name": "conjunto"})[0]['value']
+     except Exception as e: conju='No encontrado'
 
-               try:
-                    inputTag3 = soup_datos_basicos.findAll(attrs={"name": "habilita"})[0]['value']
-               except Exception as e:
-                    inputTag3='No encontrado'
+     try: rama = soup.findAll(attrs={"name": "rama.codigo"})[0]['value']
+     except Exception as e: rama='No encontrado'
 
-               try:
-                    inputTag4 = soup_datos_basicos.findAll(attrs={"name": "vinculado"})[0]['value']
-               except Exception as e:
-                    inputTag4 = 'No encontrado'
-               try:
-                    inputTag5 = soup_datos_basicos.findAll(attrs={"name": "codigoAgencia"})[0]['value']
-               except Exception as e:
-                    inputTag5 = 'No encontrado'
+     try: conv = soup.findAll(attrs={"name": "habilita"})[0]['value']
+     except Exception as e: conv='No encontrado'
 
-               dic[i]=[inputTag0,inputTag,inputTag1,inputTag3,inputTag4,inputTag5]
-     df_int =pd.DataFrame.from_dict(dic, orient='index').rename(columns={0: 'Nombre',1:'Conjunto',2:'Rama',3:'Habilita',4:'Vinculacion',5:'Codigo de Agencia'})
-     df['Nombre']=df_int['Nombre']
+     try: vinculacion = soup.findAll(attrs={"name": "vinculado"})[0]['value']
+     except Exception as e: vinculacion = 'No encontrado'
+
+     try: codigoAgencia = soup.findAll(attrs={"name": "codigoAgencia"})[0]['value']
+     except Exception as e: codigoAgencia = 'No encontrado'
+
+     dic[id] = [nom, conju, rama, conv, vinculacion, codigoAgencia]
+     df_int = pd.DataFrame.from_dict(dic, orient='index').rename(
+          columns={0: 'Nombre', 1: 'Conjunto', 2: 'Rama', 3: 'Habilita', 4: 'Vinculacion', 5: 'Codigo de Agencia'})
+     df['Nombre'] = df_int['Nombre']
      df['Conjunto'] = df_int['Conjunto']
      df['Rama'] = df_int['Rama']
      df['Habilita'] = df_int['Habilita']
@@ -59,100 +47,81 @@ def datos_basicos(url_basicos,identificadores,df):
      df['Condigo de Agencia'] = df_int['Codigo de Agencia']
 
 
-
-
 #Descripcion de competencias dado el tipo de competencias que quieres.Dado 1,2 o las 3 competencias va leyendo y crea columnas en funcion de ellas.
 
 
-def datos_competencias(url_competencias,identificadores,df,list_ident):
-     dic = {}
+def datos_competencias(url_competencias,id,df,list_ident):
      nombre_competencia = ""
+     dic={}
      for tipodecomp in list_ident:
-          for i in identificadores:
-               time.sleep(2)#aqui es donde se para pero despues de bastante tiempo
-               t_competencias = re.sub('codigoin', i, url_competencias)
-               if tipodecomp == 'G':
-                    nombre_competencia = "Compentencias Generales"
-                    t_competencias = re.sub('palabratipocomp', 'generales', t_competencias)
-                    t_competencias = requests.get(re.sub('tipodecomp', 'G', t_competencias))
-               elif tipodecomp == 'T':
-                    nombre_competencia = "Compentencias transversles"
-                    t_competencias = re.sub('palabratipocomp', 'transversales', t_competencias)
-                    t_competencias = requests.get(re.sub('tipodecomp', 'T', t_competencias))
-               elif tipodecomp == 'E':
-                    nombre_competencia = "Compentencias Especificas"
-                    t_competencias = re.sub('palabratipocomp', 'especificas', t_competencias)
-                    t_competencias = requests.get(re.sub('tipodecomp', 'E', t_competencias))
+          time.sleep(2)
+          t_competencias = re.sub('codigoin', id, url_competencias)
+          if tipodecomp == 'G':
+              nombre_competencia = "Compentencias Generales"
+              t_competencias = re.sub('palabratipocomp', 'generales', t_competencias)
+              t_competencias = requests.get(re.sub('tipodecomp', 'G', t_competencias))
+          elif tipodecomp == 'T':
+               nombre_competencia = "Compentencias transversales"
+               t_competencias = re.sub('palabratipocomp', 'transversales', t_competencias)
+               t_competencias = requests.get(re.sub('tipodecomp', 'T', t_competencias))
+          elif tipodecomp == 'E':
+                nombre_competencia = "Compentencias Especificas"
+                t_competencias = re.sub('palabratipocomp', 'especificas', t_competencias)
+                t_competencias = requests.get(re.sub('tipodecomp', 'E', t_competencias))
 
-               soup_competencias = BeautifulSoup(t_competencias.text, 'lxml')
-               try:
-                    inputTag = soup_competencias.findAll('td')
-                    df_sistemaforma = pd.read_html(str(soup_competencias.select('table')[0]))[0]
-                    dic[i] = df_sistemaforma['Denominación'].tolist()
-               except Exception as e:
-                    dic[i] = 'Tabla no encontrada'
+          soup_competencias = BeautifulSoup(t_competencias.text, 'lxml')
+          try:
+               df_sistemaforma = pd.read_html(str(soup_competencias.select('table')[0]))[0]
+               dic[id] = df_sistemaforma['Denominación'].tolist()
+          except Exception as e:
+               dic[id] = 'Tabla no encontrada'
 
           df[nombre_competencia] = dic
 
 
-#Fechas de inicio:
-def datos_calendarios(url_calendario,identificadores,df):
-     dic={}
-     for i in identificadores:
-          time.sleep(2)
-          soup_calendario=BeautifulSoup(requests.get(re.sub('codigoin',i,url_calendario)).text,'lxml')
-          try:
-               output = soup_calendario.findAll(attrs={"name": "curso_Inicio"})[0]['value']
-          except Exception as e:
-               output = 0
-          dic[i]=output
-     df['Fecha de Inicio'] = dic
 
+#Fechas de inicio:
+def datos_calendarios(url_calendario,id,df):
+     time.sleep(2)
+     soup=BeautifulSoup(requests.get(re.sub('codigoin',id,url_calendario)).text,'lxml')
+     try:  output = soup.findAll(attrs={"name": "curso_Inicio"})[0]['value']
+     except Exception as e:  output = 0
+
+     df['calendario']=output
 
 
 #Modulo de materias:
-def datos_modulo(url_modulos,identificadores,df):
-     dic ={}
-     sal ={}
-     for i in identificadores:
-          time.sleep(2)
-          soup_modulo = BeautifulSoup(requests.get(re.sub('codigoin', i, url_modulos)).text, 'lxml')
-          try:
-               #table = soup_modulo.select('table')[0]
-               df_modulo = pd.read_html(str(soup_modulo.select('table')[0]))[0]
-               dic[i] = df_modulo['Denominación'].tolist()
-          except Exception as e:
-               dic[i]='No encontrado'
-     df['Modulo']= dic
+def datos_modulo(url_modulos,id,df):
+     time.sleep(2)
+     soup = BeautifulSoup(requests.get(re.sub('codigoin', id, url_modulos)).text, 'lxml')
+     try:
+          df_modulo = pd.read_html(str(soup.select('table')[0]))[0]
+          cont = df_modulo['Denominación'].tolist()
+     except Exception as e:
+           cont='No encontrado'
 
-
+     df['Modulo']=cont
 
 #Metodología:
-def datos_metodologia(url_metodologia,identificadores,df):
+def datos_metodologia(url_metodologia,id,df):
      dic={}
-     sal={}
-     for i in identificadores:
-          time.sleep(2)
-          soup_metodologia=BeautifulSoup(requests.get(re.sub('codigoin',i,url_metodologia)).text,'lxml')
-          try :
-               df_metodologia = pd.read_html(str(soup_metodologia.select('table')[0]))[0]
-               dic[i]=df_metodologia['Denominación'].tolist()
-          except Exception as e:
-               dic[i]='Tabla no encontrada'
-
+     time.sleep(2)
+     soup=BeautifulSoup(requests.get(re.sub('codigoin',id,url_metodologia)).text,'lxml')
+     try :
+         df_metodologia = pd.read_html(str(soup.select('table')[0]))[0]
+         dic[id]=df_metodologia['Denominación'].tolist()
+     except Exception as e:
+          dic[id]='Tabla no encontrada'
      df['Metodologia']=dic
 
-
 #Sistema de Evaluación:
-def datos_sistemas(url_sistemaforma,identificadores,df):
+def datos_sistemas(url_sistemaforma,id,df):
      dic={}
-     for i in identificadores:
-          time.sleep(2)
-          soup_formacion=BeautifulSoup(requests.get(re.sub('codigoin',i,url_sistemaforma)).text,'lxml')
-          try :
-              # table = soup_formacion.select('table')[0]
-               df_sistemaforma = pd.read_html(str(soup_formacion.select('table')[0]))[0]
-               dic[i] = df_sistemaforma['Denominación'].tolist()
-          except Exception as e:
-               dic[i] = 'Tabla no encontrada'
-     df['Evaluacion']=dic
+     time.sleep(2)
+     soup=BeautifulSoup(requests.get(re.sub('codigoin',id,url_sistemaforma)).text,'lxml')
+     try :
+        df_sistemaforma = pd.read_html(str(soup.select('table')[0]))[0]
+        dic[id] = df_sistemaforma['Denominación'].tolist()
+     except Exception as e:
+         dic[id] = 'Tabla no encontrada'
+     df['Formacion']=dic
