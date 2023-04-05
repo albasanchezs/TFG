@@ -24,9 +24,18 @@ if __name__ == '__main__':
      df_final = pd.DataFrame()
      ubicacion = '.\\pdf_output\\'
      opciones=[]
-     opciones = datos_generales.universidades(opciones)
-     df = pd.DataFrame()
+     #opciones = datos_generales.universidades(opciones)
 
+     df = pd.DataFrame()
+     op = '036'
+     list = datos_generales.creacion_tablas(configuracion['principal']['url'], op)
+     i = '25029222013071801'
+     op='036'
+
+     for i in list[0]:
+          datos_web.datos_web(configuracion['principal']['url'],i, op,list[1],df)
+          print(df)
+     """
      for op in opciones:
          op='036'
          list = datos_generales.creacion_tablas(configuracion['principal']['url'], op)
@@ -38,17 +47,17 @@ if __name__ == '__main__':
             datos_web.datos_basicos(configuracion['basico']['url'], i, df_id)
             datos_web.datos_competencias(configuracion['competencias']['url'], i, df_id, configuracion['competencias']['tipo'])
         #comprobar si ya esta guardado el dato si es asi pasar al siguiente mirar el identificador
+     """
 
-
-            """
+     """
             df=pd.concat([df_id,df])
             # Guardado y leido en parquet
             df.to_parquet('data.parquet')
             print(pd.read_parquet('data.parquet'))
-            """
+     """
 
-            """
+     """
             # Guardado en una tabla de excel 
             df.to_excel('Prueba.xlsx')
-            """
+     """
 #print(pd.read_parquet('data.parquet').iloc[2])

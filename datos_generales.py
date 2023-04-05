@@ -16,35 +16,7 @@ def universidades(opciones):
      opciones=[elem['value'] for elem in soup.find(id ='codigoUniversidad').find_all('option') if elem['value'] !="" ]
      return opciones
 
-#Creacion de la tabla iniciar de la url que se le pasa y guarda nombre, uni,estado.
 
-def tabla_inicial(url_tabla,id,df,op,cad):
-     numtablas=[]
-     encontrado=1
-     dic1={}
-     dic2 = {}
-     while cad > 0:
-          numtablas.append(str(cad))
-          cad = cad - 1
-     url_tabla = re.sub('universidad', op, url_tabla)
-     for i in numtablas:
-          soup = BeautifulSoup(requests.get(re.sub('codigotablas', i, url_tabla)).text, 'lxml')
-          try:
-               df_tabla = pd.read_html(str(soup.select('table')[0]))[0]
-               for codigoentabla in df_tabla["Código"]:
-                    #for id in identificadores:
-                    try:
-                       if str(codigoentabla) == id[0:7]:
-                            dic1[id] = df_tabla.loc[df_tabla['Código'] == codigoentabla]['Universidad'].tolist()
-                            dic2[id] = df_tabla.loc[df_tabla['Código'] == codigoentabla]['Estado'].tolist()
-
-                    except Exception as e:
-                         encontrado=0
-
-          except Exception as e:
-               encontrado=0
-     df['Codigo']=dic1
-     df['Estado']=dic2
 
 #Creacion de identificadores para los urls: dado el numero lee tablas del numero hasta 1 y todos sus identificadores de la url que te manda
 def creacion_identificadores(cad,url_tablas):
