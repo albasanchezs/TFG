@@ -10,6 +10,9 @@ import pandas as pd
 import lxml
 from tabula import read_pdf
 import logging
+import tabula
+import contractions
+import pdfplumber
 
 class datos_web():
      """
@@ -19,16 +22,23 @@ class datos_web():
           -fecha de calendario
 
      """
-     def __init__(self,*args):
 
-         self._Mode(*args)
 
-     def _Mode(self,*args):
+     def primera_parte(lista,id,competencias,principal,op,cad,pdf,ubicacion):
+          df = pd.DataFrame()
+          for i in lista:
+               datos_web._Mode(i,id,df)
+          datos_web._Mode(principal,id,op,cad,df)
+          datos_web._Mode(competencias[0],id,competencias[1],df)
+          datos_web.descarga_pdf(pdf,id,ubicacion,df)
+
+          return df
+
+
+     def _Mode(*args):
           """
-
           Control de tipo de url que llega para leer
           :param args: url, identificador, lista de competencias, dataframe
-
           """
           mode_1 = 'basicos'
           mode_2 = 'competencias.palabratipocomp'
@@ -39,7 +49,7 @@ class datos_web():
           if len(args)==3:
                mode_url = str(args[0])[str(args[0]).index('actual=menu.solicitud.') + 22:str(args[0]).index('&')]
                if mode_url == mode_1:
-                    df_int = self._datos_basicos(args[0],args[1])
+                    df_int = datos_web._datos_basicos(args[0],args[1])
                     args[2]['Nombre'] = df_int['Nombre']
                     args[2]['Conjunto'] = df_int['Conjunto']
                     args[2]['Rama'] = df_int['Rama']
@@ -47,13 +57,13 @@ class datos_web():
                     args[2]['Vinculacion'] = df_int['Vinculacion']
                     args[2]['Condigo de Agencia'] = df_int['Codigo de Agencia']
                if mode_url == mode_3:
-                    args[2]['calendario'] = self._datos_calendarios(args[0],args[1])
+                    args[2]['calendario'] = datos_web._datos_calendarios(args[0],args[1])
                if mode_url ==mode_4:
-                    args[2]['Modulo']=self._datos_tablas(args[0],args[1])
+                    args[2]['Modulo']=datos_web._datos_tablas(args[0],args[1])
                if mode_url ==mode_5:
-                    args[2]['Metodologia'] = self._datos_tablas(args[0], args[1])
+                    args[2]['Metodologia'] = datos_web._datos_tablas(args[0], args[1])
                if mode_url == mode_6:
-                    args[2]['Sistema de Formacion'] = self._datos_tablas(args[0], args[1])
+                    args[2]['Sistema de Formacion'] = datos_web._datos_tablas(args[0], args[1])
           elif len(args)==4:
                mode_url = str(args[0])[str(args[0]).index('actual=menu.solicitud.') + 22:str(args[0]).index('&')]
                if mode_url == mode_2:
@@ -69,14 +79,13 @@ class datos_web():
                               elif tipodecomp == 'E':
                                    nombre_competencia = "Compentencias Especificas"
 
-                              args[3][nombre_competencia] = self.datos_competencias(args[0],args[1],nombre_competencia)
+                              args[3][nombre_competencia] = datos_web.datos_competencias(args[0],args[1],nombre_competencia)
           elif len(args)==5:
-               args[4]['Universidad']=self.tabla_inicial(args[0], args[1], args[2], args[3],'Universidad')
-               args[4]['Estado'] = self.tabla_inicial(args[0], args[1], args[2], args[3],'Estado')
+               args[4]['Universidad']=datos_web.tabla_inicial(args[0], args[1], args[2], args[3],'Universidad')
+               args[4]['Estado'] = datos_web.tabla_inicial(args[0], args[1], args[2], args[3],'Estado')
 
-     def _datos_basicos(self,url,id):
+     def _datos_basicos(url,id):
           """
-
           :param url:  url basica de datos primarios; Nombre, agencia, conjunto, Rama
           :param id:   identificador de la titulacion indicada
           :return:     dataframe de los datos asociados al id
@@ -109,7 +118,7 @@ class datos_web():
           return df_int
 
 
-     def _datos_calendarios(self, url, id):
+     def _datos_calendarios(url, id):
           """
 
           :param url:  url que indica la fecha de inicio de la titulacion
@@ -126,7 +135,7 @@ class datos_web():
           return dic
 
 
-     def datos_competencias(self,url,id,nombre_compt):
+     def datos_competencias(url,id,nombre_compt):
           """
 
           :param url: url asociada a la parte de las tablas de competencias
@@ -156,9 +165,8 @@ class datos_web():
           return dic
 
 
-     def _datos_tablas(self,url,id):
+     def _datos_tablas(url,id):
           """
-
           :param url: url que puede leer sistemas de formacion de titulacion, modulos y metodologias existentes asociados al id
           :param id: identificador de la titulacion indicada
           :return: diccionario del id asociado a una lista de competencias
@@ -174,9 +182,8 @@ class datos_web():
           return dic
 
      #Creacion de la tabla inicial de la url que se le pasa y guarda nombre, uni,estado.
-     def tabla_inicial(self,url_tabla,id,op,cad,col):
+     def tabla_inicial(url_tabla,id,op,cad,col):
           """
-
           :param url_tabla:  url general donde aparecen todas las titulaciones
           :param id:         id que busco para completar los datos
           :param op:         universidad donde estoy
@@ -207,4 +214,78 @@ class datos_web():
                except Exception as e:
                     encontrado=0
           return dic
-          #df['Estado']=dic2
+
+     def descarga_pdf(url_pdfs, id, ubicacion, df):
+          """
+          Descarga de url donde esta el plan de estudios
+          :param id:     id que busco para completar los datos
+          :param ubicacion: carpeta del proyecto donde guardo el pdf
+          :param df:        guardo lo leido del pdf
+          """
+          encontrado = 0
+          soup_pdfs = BeautifulSoup(requests.get(re.sub('codigoin', id, url_pdfs)).text, 'lxml')
+          try:
+               doc = soup_pdfs.findAll(class_='pdf')
+               enlace_pdf = doc[0]['href']
+               with open(ubicacion + str(id) + ".pdf", "wb") as file:
+                    file.write(requests.get(enlace_pdf).content)
+               df['Texto'] = datos_web.des_text(id, ubicacion)
+               df['Tabla'] = datos_web.des_tabla(id, ubicacion)
+
+          except Exception as e:
+               encontrado = 1
+
+     def des_text(id, ubicacion):
+         """
+         :param id:     id que busco para completar los datos
+         :param ubicacion: carpeta del proyecto donde guardo el pdf
+         :return:           dic del texto asociado al documento id
+         """
+         dic={}
+         total_text=""
+         try:
+             pdf_file = ubicacion + str(id)+".pdf"
+             pdf = pdfplumber.open(pdf_file)
+
+             for i in range(len(pdf.pages)):
+                p = pdf.pages[i]
+
+                ts = {
+                                "vertical_strategy": "explicit",
+                                "horizontal_strategy": "explicit",
+                                "explicit_vertical_lines": datos_generales.curves_to_edges(p.curves) + p.edges,
+                                "explicit_horizontal_lines": datos_generales.curves_to_edges(p.curves) + p.edges,
+                }
+                bboxes = [table.bbox for table in p.find_tables(table_settings=ts)]
+                def not_within_bboxes(obj):
+                    def obj_in_bbox(_bbox):
+                         v_mid = (obj["top"] + obj["bottom"]) / 2
+                         h_mid = (obj["x0"] + obj["x1"]) / 2
+                         x0, top, x1, bottom = _bbox
+                         return (h_mid >=x0 and (h_mid < x1) and (v_mid > top) and (v_mid < bottom))
+                    return not any(obj_in_bbox(__bbox) for __bbox in bboxes)
+
+                #Esto sería el texto
+                page_text = p.filter(not_within_bboxes).extract_text()
+                total_text += datos_generales.limpieza(page_text)
+             dic[id]=total_text
+         except Exception as e:
+                 dic[id] = "No encontrado"
+         return dic
+
+     def des_tabla(id, ubicacion):
+         """
+         :param id:     id que busco para completar los datos
+         :param ubicacion: carpeta del proyecto donde guardo el pdf
+         :return:            dic de tablas asociadas al documento id
+         """
+         dic={}
+         lista_tabla = []
+         try:
+           df=read_pdf(ubicacion + str(id) + ".pdf", pages="all", multiple_tables=True, encoding='latin-1')
+           for u in range(len(df)):
+              lista_tabla.append(df[u].to_numpy().transpose().tolist())
+              dic[id] = lista_tabla
+         except Exception as e:
+               dic[id] = "No encontrado"
+         return dic

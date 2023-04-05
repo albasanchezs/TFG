@@ -6,7 +6,9 @@ import time
 from bs4 import BeautifulSoup
 import requests
 import re
+import contractions
 import pandas as pd
+import pdfplumber
 
 #1. Primera parte:
 
@@ -55,3 +57,16 @@ def creacion_tablas(url_tabla,opciones):
      identificadores = creacion_identificadores(cad, url_uni)
      list =[identificadores,cad]
      return list
+
+def curves_to_edges(cs):
+    edges = []
+    for c in cs:
+        edges += pdfplumber.utils.rect_to_edges(c)
+    return edges
+
+
+def limpieza(text):
+    page_text = re.sub('(http[s]?:\/\/|www\.)[^\s]+', '', text)
+    page_text = re.sub("r'https://\S+|www\.\S+'", '', page_text)
+    expanded_text = contractions.fix(page_text).lower()
+    return expanded_text
