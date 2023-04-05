@@ -9,6 +9,7 @@ import re
 import contractions
 import pandas as pd
 import pdfplumber
+from lxml import etree as ET
 
 #1. Primera parte:
 
@@ -70,3 +71,10 @@ def limpieza(text):
     page_text = re.sub("r'https://\S+|www\.\S+'", '', page_text)
     expanded_text = contractions.fix(page_text).lower()
     return expanded_text
+
+def insert_multiple_rows(self):
+    workbook = self.Workbook(self.dataDir + 'Prueba.xlsx')
+    worksheet = workbook.getWorksheets().get(0)
+    worksheet.getCells().insertRows(2,10)
+    workbook.save(self.dataDir + "Insert Multiple Rows.xls")
+    print("exito")

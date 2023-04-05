@@ -24,13 +24,13 @@ class datos_web():
      """
 
 
-     def primera_parte(lista,id,competencias,principal,op,cad,pdf,ubicacion):
+     def control(lista,id,competencias,principal,op,cad,pdf,ubicacion):
           df = pd.DataFrame()
           for i in lista:
                datos_web._Mode(i,id,df)
           datos_web._Mode(principal,id,op,cad,df)
           datos_web._Mode(competencias[0],id,competencias[1],df)
-          datos_web.descarga_pdf(pdf,id,ubicacion,df)
+         # datos_web.descarga_pdf(pdf,id,ubicacion,df)
 
           return df
 
@@ -56,14 +56,19 @@ class datos_web():
                     args[2]['Habilita'] = df_int['Habilita']
                     args[2]['Vinculacion'] = df_int['Vinculacion']
                     args[2]['Condigo de Agencia'] = df_int['Codigo de Agencia']
+                    time.sleep(2)
                if mode_url == mode_3:
                     args[2]['calendario'] = datos_web._datos_calendarios(args[0],args[1])
+                    time.sleep(2)
                if mode_url ==mode_4:
                     args[2]['Modulo']=datos_web._datos_tablas(args[0],args[1])
+                    time.sleep(2)
                if mode_url ==mode_5:
                     args[2]['Metodologia'] = datos_web._datos_tablas(args[0], args[1])
+                    time.sleep(2)
                if mode_url == mode_6:
                     args[2]['Sistema de Formacion'] = datos_web._datos_tablas(args[0], args[1])
+                    time.sleep(2)
           elif len(args)==4:
                mode_url = str(args[0])[str(args[0]).index('actual=menu.solicitud.') + 22:str(args[0]).index('&')]
                if mode_url == mode_2:
@@ -80,8 +85,10 @@ class datos_web():
                                    nombre_competencia = "Compentencias Especificas"
 
                               args[3][nombre_competencia] = datos_web.datos_competencias(args[0],args[1],nombre_competencia)
+                              time.sleep(4)
           elif len(args)==5:
                args[4]['Universidad']=datos_web.tabla_inicial(args[0], args[1], args[2], args[3],'Universidad')
+               time.sleep(2)
                args[4]['Estado'] = datos_web.tabla_inicial(args[0], args[1], args[2], args[3],'Estado')
 
      def _datos_basicos(url,id):
