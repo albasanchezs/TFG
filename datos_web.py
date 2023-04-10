@@ -15,27 +15,34 @@ import contractions
 import pdfplumber
 
 class datos_web():
-     """
-     Clase para comprobar que los enlaces a url, lista , id estan correctos
-          -extraer datos basicos
-          -tablas de competencias,modulo,formacion,metodologia
-          -fecha de calendario
+    """
+         Clase para comprobar que los enlaces a url, lista , id estan correctos
+              -extraer datos basicos
+              -tablas de competencias,modulo,formacion,metodologia
+              -fecha de calendario
 
-     """
+    """
+    def __init__(self,logger=None):
+        if logger:
+            self._logger=logger
+        else:
+            logging.basicConfig(level='INFO')
+        return
 
 
-     def control(lista,id,competencias,principal,op,cad,pdf,ubicacion):
+    def control(lista,id,competencias,principal,op,cad,pdf,ubicacion):
           df = pd.DataFrame()
+
           for i in lista:
                datos_web._Mode(i,id,df)
           datos_web._Mode(principal,id,op,cad,df)
           datos_web._Mode(competencias[0],id,competencias[1],df)
-         # datos_web.descarga_pdf(pdf,id,ubicacion,df)
+          datos_web.descarga_pdf(pdf,id,ubicacion,df)
 
           return df
 
 
-     def _Mode(*args):
+    def _Mode(*args):
           """
           Control de tipo de url que llega para leer
           :param args: url, identificador, lista de competencias, dataframe
@@ -85,20 +92,20 @@ class datos_web():
                                    nombre_competencia = "Compentencias Especificas"
 
                               args[3][nombre_competencia] = datos_web.datos_competencias(args[0],args[1],nombre_competencia)
-                              time.sleep(4)
+                              time.sleep(6)
           elif len(args)==5:
                args[4]['Universidad']=datos_web.tabla_inicial(args[0], args[1], args[2], args[3],'Universidad')
-               time.sleep(2)
+               time.sleep(3)
                args[4]['Estado'] = datos_web.tabla_inicial(args[0], args[1], args[2], args[3],'Estado')
 
-     def _datos_basicos(url,id):
+    def _datos_basicos(url,id):
           """
           :param url:  url basica de datos primarios; Nombre, agencia, conjunto, Rama
           :param id:   identificador de la titulacion indicada
           :return:     dataframe de los datos asociados al id
           """
           dic={}
-          time.sleep(1)
+          time.sleep(4)
           soup=BeautifulSoup(requests.get(re.sub('codigoin',id,url)).text, 'lxml')
 
           try: nom = soup.findAll(attrs={"name": "denominacion"})[0]['value']
@@ -125,13 +132,14 @@ class datos_web():
           return df_int
 
 
-     def _datos_calendarios(url, id):
+    def _datos_calendarios(url, id):
           """
 
           :param url:  url que indica la fecha de inicio de la titulacion
           :param id:   identificador de la titulacion indicada
           :return:     diccionario con la fecha asociada al identificador
           """
+          time.sleep(4)
           dic={}
           soup = BeautifulSoup(requests.get(re.sub('codigoin', id, url)).text, 'lxml')
           try:
@@ -142,7 +150,7 @@ class datos_web():
           return dic
 
 
-     def datos_competencias(url,id,nombre_compt):
+    def datos_competencias(url,id,nombre_compt):
           """
 
           :param url: url asociada a la parte de las tablas de competencias
@@ -172,12 +180,13 @@ class datos_web():
           return dic
 
 
-     def _datos_tablas(url,id):
+    def _datos_tablas(url,id):
           """
           :param url: url que puede leer sistemas de formacion de titulacion, modulos y metodologias existentes asociados al id
           :param id: identificador de la titulacion indicada
           :return: diccionario del id asociado a una lista de competencias
           """
+          time.sleep(4)
           dic={}
           soup = BeautifulSoup(requests.get(re.sub('codigoin', id, url)).text, 'lxml')
           try:
@@ -189,7 +198,7 @@ class datos_web():
           return dic
 
      #Creacion de la tabla inicial de la url que se le pasa y guarda nombre, uni,estado.
-     def tabla_inicial(url_tabla,id,op,cad,col):
+    def tabla_inicial(url_tabla,id,op,cad,col):
           """
           :param url_tabla:  url general donde aparecen todas las titulaciones
           :param id:         id que busco para completar los datos
@@ -198,6 +207,7 @@ class datos_web():
           :param col:        leo columna univer o columna estado
           :return:           diccionario donde se asocia el id a la info guardada
           """
+          time.sleep(4)
           numtablas=[]
           encontrado=1
           dic={}
@@ -214,7 +224,6 @@ class datos_web():
                             if str(codigoentabla) == id[0:7]:
                                  #'Universidad'
                                  dic[id] = df_tabla.loc[df_tabla['Código'] == codigoentabla][col].tolist()
-                                # dic2[id] = df_tabla.loc[df_tabla['Código'] == codigoentabla]['Estado'].tolist()
 
                          except Exception as e:
                               dic[id] = "No encontrado"
@@ -222,13 +231,14 @@ class datos_web():
                     encontrado=0
           return dic
 
-     def descarga_pdf(url_pdfs, id, ubicacion, df):
+    def descarga_pdf(url_pdfs, id, ubicacion, df):
           """
           Descarga de url donde esta el plan de estudios
           :param id:     id que busco para completar los datos
           :param ubicacion: carpeta del proyecto donde guardo el pdf
           :param df:        guardo lo leido del pdf
           """
+          time.sleep(4)
           encontrado = 0
           soup_pdfs = BeautifulSoup(requests.get(re.sub('codigoin', id, url_pdfs)).text, 'lxml')
           try:
@@ -237,19 +247,20 @@ class datos_web():
                with open(ubicacion + str(id) + ".pdf", "wb") as file:
                     file.write(requests.get(enlace_pdf).content)
                df['Texto'] = datos_web.des_text(id, ubicacion)
+               time.sleep(2)
                df['Tabla'] = datos_web.des_tabla(id, ubicacion)
+               time.sleep(2)
 
           except Exception as e:
                encontrado = 1
-
-     def des_text(id, ubicacion):
+    def des_text(id, ubicacion):
          """
          :param id:     id que busco para completar los datos
          :param ubicacion: carpeta del proyecto donde guardo el pdf
          :return:           dic del texto asociado al documento id
          """
          dic={}
-         total_text=""
+         total_text=[]
          try:
              pdf_file = ubicacion + str(id)+".pdf"
              pdf = pdfplumber.open(pdf_file)
@@ -274,13 +285,13 @@ class datos_web():
 
                 #Esto sería el texto
                 page_text = p.filter(not_within_bboxes).extract_text()
-                total_text += datos_generales.limpieza(page_text)
+                total_text.append(datos_generales.limpieza(page_text))
              dic[id]=total_text
          except Exception as e:
                  dic[id] = "No encontrado"
          return dic
 
-     def des_tabla(id, ubicacion):
+    def des_tabla(id, ubicacion):
          """
          :param id:     id que busco para completar los datos
          :param ubicacion: carpeta del proyecto donde guardo el pdf

@@ -20,6 +20,8 @@ import main
 import openpyxl
 from openpyxl import Workbook
 from openpyxl import load_workbook
+import os.path as path
+import os
 
 
 
@@ -29,31 +31,58 @@ if __name__ == '__main__':
      configuracion.read('inconfig.cfg')
      ubicacion = '.\\pdf_output\\'
      opciones=[]
-     #opciones = datos_generales.universidades(opciones)
 
-     op = '036'
-     id='25029222013071801'
+     DATA =datos_web()
+     df = DATA.control
+
+     opciones = datos_generales.universidades(opciones)
 
      competencias=[configuracion['competencias']['url'],configuracion['competencias']['tipo']]
      principal=configuracion['principal']['url']
-     cad=6
-     lista = [configuracion['basico']['url'],configuracion['calendario']['url'],configuracion['modulo']['url']]
+     lista = [configuracion['basico']['url'],configuracion['calendario']['url'],configuracion['modulo']['url'],configuracion['metodologia']['url'],configuracion['sistemaforma']['url']]
      df=pd.DataFrame()
 
      for op in opciones:
-         list = datos_generales.creacion_tablas(configuracion['principal']['url'], op)
-         for i in list[0]:
-            df_id=pd.DataFrame()
-            df = datos_web.datos_web.control(lista, df_id, competencias, principal, op, list[1], configuracion['pdf']['url'], ubicacion)
-            print(df_id)
-            df=pd.concat([df_id,df])
-            # Guardado y leido en parquet
-            df.to_parquet('data.parquet')
-            print(pd.read_parquet('data.parquet'))
+         if open("Titulaciones.txt", 'r').read().find("-" + op + "-") == -1:
+             list = datos_generales.creacion_tablas(configuracion['principal']['url'], op)
+             for i in list[0]:
+                if  open("Identificadores.txt", 'r').read().find("-" + i + "-") == -1:
+                     df_id = DATA.control(lista, i, competencias, principal, op, list[1], configuracion['pdf']['url'], ubicacion)
+                     # Guarda datos en CSV:
+                     df = pd.concat([df, df_id])
+                     if path.exists('output.xlsx'):
+                         with pd.ExcelWriter('output.xlsx', mode='a' , engine="openpyxl", if_sheet_exists="overlay") as writer:
+                             df.to_excel(writer)
+                     else:
+                         with pd.ExcelWriter('output.xlsx', mode='w') as writer:
+                             df.to_excel(writer)
+                     u = open("Identificadores.txt", mode="a")
+                     u.write("-" + i + "-")
+                     u.close()
+                else:
+                    print("Id Existe")
+             f = open("Titulaciones.txt",mode="a")
+             f.write("-"+op+"-")
+             f.close()
+         else:
+             print("existe")
+         print(op)
+
+
+
 
 
      """
+            # Guardado y leido en parquet
+         df.to_parquet('data.parquet')
+         # Guardado en una tabla de excel
+         df.to_excel('Prueba.xlsx')
+         #print(pd.read_parquet('data.parquet'))
+         print(op)
+             # Guardado y leido en parquet
+            df.to_parquet('data.parquet')
+            print(pd.read_parquet('data.parquet'))
+            
             # Guardado en una tabla de excel 
             df.to_excel('Prueba.xlsx')
      """
-#print(pd.read_parquet('data.parquet').iloc[2])

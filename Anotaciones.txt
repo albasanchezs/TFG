@@ -1,0 +1,6 @@
+Gestionar los errores como hacen en su proyecto
+ir viendo por universidad y por indicativo
+poner excepciones para imagenes porque no se pueden leer asique pasar (ya que no son relevantes tampoco
+GRAVE: Cannot read JBIG2 image: jbig2-imageio is not installed
+abr 07, 2023 12:30:33 PM org.apache.pdfbox.contentstream.PDFStreamEngine operatorException
+)

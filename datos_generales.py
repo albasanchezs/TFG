@@ -68,6 +68,7 @@ def curves_to_edges(cs):
 
 def limpieza(text):
     page_text = re.sub('(http[s]?:\/\/|www\.)[^\s]+', '', text)
+    page_text = re.sub('\n', '', text)
     page_text = re.sub("r'https://\S+|www\.\S+'", '', page_text)
     expanded_text = contractions.fix(page_text).lower()
     return expanded_text
