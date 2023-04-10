@@ -98,6 +98,14 @@ class datos_web():
                time.sleep(3)
                args[4]['Estado'] = datos_web.tabla_inicial(args[0], args[1], args[2], args[3],'Estado')
 
+    def basico(url,var,id):
+        soup = BeautifulSoup(requests.get(re.sub('codigoin', id, url)).text, 'lxml')
+        try:
+          out = soup.findAll(attrs={"name": var})[0]['value']
+        except Exception as e:
+            out = "No encontrado"
+        return out
+
     def _datos_basicos(url,id):
           """
           :param url:  url basica de datos primarios; Nombre, agencia, conjunto, Rama
@@ -106,25 +114,12 @@ class datos_web():
           """
           dic={}
           time.sleep(4)
-          soup=BeautifulSoup(requests.get(re.sub('codigoin',id,url)).text, 'lxml')
-
-          try: nom = soup.findAll(attrs={"name": "denominacion"})[0]['value']
-          except Exception as e:  nom = 'No encontrado'
-
-          try: conju = soup.findAll(attrs={"name": "conjunto"})[0]['value']
-          except Exception as e: conju='No encontrado'
-
-          try: rama = soup.findAll(attrs={"name": "rama.codigo"})[0]['value']
-          except Exception as e: rama='No encontrado'
-
-          try: conv = soup.findAll(attrs={"name": "habilita"})[0]['value']
-          except Exception as e: conv='No encontrado'
-
-          try: vinculacion = soup.findAll(attrs={"name": "vinculado"})[0]['value']
-          except Exception as e: vinculacion = 'No encontrado'
-
-          try: codigoAgencia = soup.findAll(attrs={"name": "codigoAgencia"})[0]['value']
-          except Exception as e: codigoAgencia = 'No encontrado'
+          nom = datos_web.basico(url,"denominacion",id)
+          conju = datos_web.basico(url, "conjunto",id)
+          rama = datos_web.basico(url, "rama.codigo", id)
+          conv = datos_web.basico(url, "habilita", id)
+          vinculacion = datos_web.basico(url, "vinculado", id)
+          codigoAgencia = datos_web.basico(url, "codigoAgencia", id)
 
           dic[id] = [nom, conju, rama, conv, vinculacion, codigoAgencia]
           df_int = pd.DataFrame.from_dict(dic, orient='index').rename(
@@ -141,11 +136,7 @@ class datos_web():
           """
           time.sleep(4)
           dic={}
-          soup = BeautifulSoup(requests.get(re.sub('codigoin', id, url)).text, 'lxml')
-          try:
-               output = soup.findAll(attrs={"name": "curso_Inicio"})[0]['value']
-          except Exception as e:
-               output = 0
+          output = datos_web.basico(url, "curso_Inicio", id)
           dic[id]=output
           return dic
 
