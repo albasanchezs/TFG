@@ -32,22 +32,22 @@ if __name__ == '__main__':
      ubicacion = '.\\pdf_output\\'
      opciones=[]
 
-     DATA =datos_web()
-     df = DATA.control
 
+
+     #Inicializacion
      opciones = datos_generales.universidades(opciones)
-
      competencias=[configuracion['competencias']['url'],configuracion['competencias']['tipo']]
      principal=configuracion['principal']['url']
      lista = [configuracion['basico']['url'],configuracion['calendario']['url'],configuracion['modulo']['url'],configuracion['metodologia']['url'],configuracion['sistemaforma']['url']]
      df=pd.DataFrame()
 
+     #Proceso de lectura
      for op in opciones:
          if open("Titulaciones.txt", 'r').read().find("-" + op + "-") == -1:
              list = datos_generales.creacion_tablas(configuracion['principal']['url'], op)
              for i in list[0]:
                 if  open("Identificadores.txt", 'r').read().find("-" + i + "-") == -1:
-                     df_id = DATA.control(lista, i, competencias, principal, op, list[1], configuracion['pdf']['url'], ubicacion)
+                     df_id = datos_web.datos_web.control(lista, i, competencias, principal, op, list[1], configuracion['pdf']['url'], ubicacion)
                      # Guarda datos en CSV:
                      df = pd.concat([df, df_id])
                      if path.exists('output.xlsx'):
@@ -73,16 +73,9 @@ if __name__ == '__main__':
 
 
      """
+    
             # Guardado y leido en parquet
-         df.to_parquet('data.parquet')
-         # Guardado en una tabla de excel
-         df.to_excel('Prueba.xlsx')
-         #print(pd.read_parquet('data.parquet'))
-         print(op)
-             # Guardado y leido en parquet
             df.to_parquet('data.parquet')
             print(pd.read_parquet('data.parquet'))
-            
-            # Guardado en una tabla de excel 
-            df.to_excel('Prueba.xlsx')
+
      """

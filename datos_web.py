@@ -166,7 +166,7 @@ class datos_web():
                df_sistemaforma = pd.read_html(str(soup.select('table')[0]))[0]
                dic[id] = df_sistemaforma['Denominación'].tolist()
           except Exception as e:
-               dic[id] = 'Tabla no encontrada'
+               dic[id] = 'No encontrado'
 
           return dic
 
