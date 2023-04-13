@@ -9,7 +9,6 @@ import re
 import contractions
 import pandas as pd
 import pdfplumber
-from lxml import etree as ET
 
 #1. Primera parte:
 

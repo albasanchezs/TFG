@@ -34,10 +34,10 @@ class datos_web():
           df = pd.DataFrame()
 
           for i in lista:
-               datos_web._Mode(i,id,df)
-          datos_web._Mode(principal,id,op,cad,df)
-          datos_web._Mode(competencias[0],id,competencias[1],df)
-          datos_web.descarga_pdf(pdf,id,ubicacion,df)
+            datos_web._Mode(i, id, df)
+          datos_web._Mode(principal, id, op, cad, df)
+          datos_web._Mode(competencias[0], id, competencias[1], df)
+          datos_web.descarga_pdf(pdf, id, ubicacion, df)
 
           return df
 
@@ -53,29 +53,33 @@ class datos_web():
           mode_4 = 'planificacion.modulos'
           mode_5 = 'planificacion.metodologias'
           mode_6 = 'planificacion.sistemas'
+
           if len(args)==3:
                mode_url = str(args[0])[str(args[0]).index('actual=menu.solicitud.') + 22:str(args[0]).index('&')]
+
                if mode_url == mode_1:
-                    df_int = datos_web._datos_basicos(args[0],args[1])
+                    df_int = datos_web._datos_basicos(args[0], args[1])
                     args[2]['Nombre'] = df_int['Nombre']
                     args[2]['Conjunto'] = df_int['Conjunto']
                     args[2]['Rama'] = df_int['Rama']
                     args[2]['Habilita'] = df_int['Habilita']
                     args[2]['Vinculacion'] = df_int['Vinculacion']
                     args[2]['Condigo de Agencia'] = df_int['Codigo de Agencia']
+
                     time.sleep(2)
                if mode_url == mode_3:
-                    args[2]['calendario'] = datos_web._datos_calendarios(args[0],args[1])
-                    time.sleep(2)
+                   args[2]['calendario'] = datos_web._datos_calendarios(args[0], args[1])
+                   time.sleep(2)
                if mode_url ==mode_4:
-                    args[2]['Modulo']=datos_web._datos_tablas(args[0],args[1])
-                    time.sleep(2)
+                   args[2]['Modulo'] = datos_web._datos_tablas(args[0], args[1])
+                   time.sleep(2)
                if mode_url ==mode_5:
-                    args[2]['Metodologia'] = datos_web._datos_tablas(args[0], args[1])
-                    time.sleep(2)
+                   args[2]['Metodologia'] = datos_web._datos_tablas(args[0], args[1])
+                   time.sleep(2)
                if mode_url == mode_6:
-                    args[2]['Sistema de Formacion'] = datos_web._datos_tablas(args[0], args[1])
-                    time.sleep(2)
+                   args[2]['Sistema de Formacion'] = datos_web._datos_tablas(args[0], args[1])
+                   time.sleep(2)
+
           elif len(args)==4:
                mode_url = str(args[0])[str(args[0]).index('actual=menu.solicitud.') + 22:str(args[0]).index('&')]
                if mode_url == mode_2:
@@ -90,13 +94,13 @@ class datos_web():
 
                               elif tipodecomp == 'E':
                                    nombre_competencia = "Compentencias Especificas"
-
                               args[3][nombre_competencia] = datos_web.datos_competencias(args[0],args[1],nombre_competencia)
                               time.sleep(6)
           elif len(args)==5:
-               args[4]['Universidad']=datos_web.tabla_inicial(args[0], args[1], args[2], args[3],'Universidad')
-               time.sleep(3)
-               args[4]['Estado'] = datos_web.tabla_inicial(args[0], args[1], args[2], args[3],'Estado')
+              args[4]['Universidad'] = datos_web.tabla_inicial(args[0], args[1], args[2], args[3], 'Universidad')
+              time.sleep(3)
+              args[4]['Estado'] = datos_web.tabla_inicial(args[0], args[1], args[2], args[3], 'Estado')
+
 
     def basico(url,var,id):
         soup = BeautifulSoup(requests.get(re.sub('codigoin', id, url)).text, 'lxml')
@@ -164,10 +168,10 @@ class datos_web():
           soup = BeautifulSoup(t_competencias.text, 'lxml')
           try:
                df_sistemaforma = pd.read_html(str(soup.select('table')[0]))[0]
-               dic[id] = df_sistemaforma['Denominación'].tolist()
+               info= df_sistemaforma['Denominación'].tolist()
           except Exception as e:
-               dic[id] = 'No encontrado'
-
+               info = 'No encontrado'
+          dic[id]=info
           return dic
 
 
@@ -181,11 +185,11 @@ class datos_web():
           dic={}
           soup = BeautifulSoup(requests.get(re.sub('codigoin', id, url)).text, 'lxml')
           try:
-               df_modulo = pd.read_html(str(soup.select('table')[0]))[0]
-               dic[id] = df_modulo['Denominación'].tolist()
+               data = pd.read_html(str(soup.select('table')[0]))[0]
+               info = data['Denominación'].tolist()
           except Exception as e:
-                dic[id] ='No encontrado'
-
+                info ="No encontrado"
+          dic[id] = info
           return dic
 
      #Creacion de la tabla inicial de la url que se le pasa y guarda nombre, uni,estado.
@@ -214,22 +218,24 @@ class datos_web():
                          try:
                             if str(codigoentabla) == id[0:7]:
                                  #'Universidad'
-                                 dic[id] = df_tabla.loc[df_tabla['Código'] == codigoentabla][col].tolist()
+                                 info = df_tabla.loc[df_tabla['Código'] == codigoentabla][col].tolist()
 
                          except Exception as e:
-                              dic[id] = "No encontrado"
+                              info = "No encontrado"
                except Exception as e:
                     encontrado=0
+          dic[id]=info
           return dic
 
-    def descarga_pdf(url_pdfs, id, ubicacion, df):
+    def descarga_pdf(url_pdfs, id, ubicacion,df):
+
           """
           Descarga de url donde esta el plan de estudios
           :param id:     id que busco para completar los datos
           :param ubicacion: carpeta del proyecto donde guardo el pdf
           :param df:        guardo lo leido del pdf
           """
-          time.sleep(4)
+
           encontrado = 0
           soup_pdfs = BeautifulSoup(requests.get(re.sub('codigoin', id, url_pdfs)).text, 'lxml')
           try:
@@ -242,8 +248,11 @@ class datos_web():
                df['Tabla'] = datos_web.des_tabla(id, ubicacion)
                time.sleep(2)
 
+               time.sleep(6)
+
           except Exception as e:
                encontrado = 1
+          return df
     def des_text(id, ubicacion):
          """
          :param id:     id que busco para completar los datos
@@ -277,9 +286,10 @@ class datos_web():
                 #Esto sería el texto
                 page_text = p.filter(not_within_bboxes).extract_text()
                 total_text.append(datos_generales.limpieza(page_text))
-             dic[id]=total_text
+             info=total_text
          except Exception as e:
-                 dic[id] = "No encontrado"
+                 info= "No encontrado"
+         dic[id]=info
          return dic
 
     def des_tabla(id, ubicacion):
@@ -293,8 +303,10 @@ class datos_web():
          try:
            df=read_pdf(ubicacion + str(id) + ".pdf", pages="all", multiple_tables=True, encoding='latin-1')
            for u in range(len(df)):
-              lista_tabla.append(df[u].to_numpy().transpose().tolist())
-              dic[id] = lista_tabla
+              lista_tabla.append(df[u].to_numpy().tolist())
+             # print("-----------------------")
+             # print(df[u].to_numpy().transpose().tolist())
          except Exception as e:
-               dic[id] = "No encontrado"
+               lista_tabla = "No encontrado"
+         dic[id]= lista_tabla
          return dic
