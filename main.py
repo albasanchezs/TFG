@@ -32,7 +32,7 @@ if __name__ == '__main__':
      configuracion.read('inconfig.cfg')
      ubicacion = '.\\pdf_output\\'
      opciones=[]
-     
+
      #Inicializacion
      opciones = datos_generales.universidades(opciones)
      competencias=[configuracion['competencias']['url'],configuracion['competencias']['tipo']]
