@@ -14,8 +14,8 @@ import pdfplumber
 
 #Extrae todos los identificativos de todas las universidades que hay en la web y lo introduce en una lista
 def universidades(opciones):
-     time.sleep(1)
-     soup = BeautifulSoup(requests.get('https://www.educacion.gob.es/ruct/consultaestudios?actual=estudios').text, 'lxml')
+     time.sleep(2)
+     soup = BeautifulSoup(requests.get('https://www.educacion.gob.es/ruct/consultaestudios?actual=estudios',verify=False).text, 'lxml')
      time.sleep(2)
      opciones=[elem['value'] for elem in soup.find(id ='codigoUniversidad').find_all('option') if elem['value'] !="" ]
      return opciones
@@ -30,7 +30,7 @@ def creacion_identificadores(cad,url_tablas):
           numtablas.append(str(cad))
           cad = cad - 1
      for i in numtablas:
-          soup = BeautifulSoup(requests.get(re.sub('codigotablas', i, url_tablas)).text, 'lxml')
+          soup = BeautifulSoup(requests.get(re.sub('codigotablas', i, url_tablas),verify=False).text, 'lxml')
           enlace_siguiente = soup.find_all(class_="ver")
           for sep in enlace_siguiente:
                # mirar esto del indice
@@ -46,7 +46,7 @@ def creacion_identificadores(cad,url_tablas):
 def creacion_tablas(url_tabla,opciones):
      cadena=""
      url_uni = re.sub('universidad', opciones, url_tabla)
-     soup = BeautifulSoup(requests.get(re.sub('universidad', opciones, url_tabla)).text, 'lxml')
+     soup = BeautifulSoup(requests.get(re.sub('universidad', opciones, url_tabla),verify=False).text, 'lxml')
      num = soup.findAll(class_="pagelinks")
      if not num:
           cad=1

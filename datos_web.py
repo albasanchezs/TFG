@@ -103,7 +103,7 @@ class datos_web():
 
 
     def basico(url,var,id):
-        soup = BeautifulSoup(requests.get(re.sub('codigoin', id, url)).text, 'lxml')
+        soup = BeautifulSoup(requests.get(re.sub('codigoin', id, url),verify=False).text, 'lxml')
         try:
           out = soup.findAll(attrs={"name": var})[0]['value']
         except Exception as e:
@@ -157,13 +157,13 @@ class datos_web():
           t_competencias = re.sub('codigoin', id, url)
           if nombre_compt == "Compentencias Generales":
                    t_competencias = re.sub('palabratipocomp', 'generales', t_competencias)
-                   t_competencias = requests.get(re.sub('tipodecomp', 'G', t_competencias))
+                   t_competencias = requests.get(re.sub('tipodecomp', 'G', t_competencias),verify=False)
           elif nombre_compt == "Compentencias transversales":
                     t_competencias = re.sub('palabratipocomp', 'transversales', t_competencias)
-                    t_competencias = requests.get(re.sub('tipodecomp', 'T', t_competencias))
+                    t_competencias = requests.get(re.sub('tipodecomp', 'T', t_competencias),verify=False)
           elif nombre_compt == "Compentencias Especificas":
                      t_competencias = re.sub('palabratipocomp', 'especificas', t_competencias)
-                     t_competencias = requests.get(re.sub('tipodecomp', 'E', t_competencias))
+                     t_competencias = requests.get(re.sub('tipodecomp', 'E', t_competencias),verify=False)
 
           soup = BeautifulSoup(t_competencias.text, 'lxml')
           try:
@@ -183,7 +183,7 @@ class datos_web():
           """
           time.sleep(4)
           dic={}
-          soup = BeautifulSoup(requests.get(re.sub('codigoin', id, url)).text, 'lxml')
+          soup = BeautifulSoup(requests.get(re.sub('codigoin', id, url),verify=False).text, 'lxml')
           try:
                data = pd.read_html(str(soup.select('table')[0]))[0]
                info = data['Denominación'].tolist()
@@ -211,7 +211,7 @@ class datos_web():
                cad = cad - 1
           url_tabla = re.sub('universidad', op, url_tabla)
           for i in numtablas:
-               soup = BeautifulSoup(requests.get(re.sub('codigotablas', i, url_tabla)).text, 'lxml')
+               soup = BeautifulSoup(requests.get(re.sub('codigotablas', i, url_tabla),verify=False).text, 'lxml')
                try:
                     df_tabla = pd.read_html(str(soup.select('table')[0]))[0]
                     for codigoentabla in df_tabla["Código"]:
@@ -237,12 +237,12 @@ class datos_web():
           """
 
           encontrado = 0
-          soup_pdfs = BeautifulSoup(requests.get(re.sub('codigoin', id, url_pdfs)).text, 'lxml')
+          soup_pdfs = BeautifulSoup(requests.get(re.sub('codigoin', id, url_pdfs),verify=False).text, 'lxml')
           try:
                doc = soup_pdfs.findAll(class_='pdf')
                enlace_pdf = doc[0]['href']
                with open(ubicacion + str(id) + ".pdf", "wb") as file:
-                    file.write(requests.get(enlace_pdf).content)
+                    file.write(requests.get(enlace_pdf,verify=False).content)
                df['Texto'] = datos_web.des_text(id, ubicacion)
                time.sleep(2)
                df['Tabla'] = datos_web.des_tabla(id, ubicacion)

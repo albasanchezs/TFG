@@ -26,23 +26,26 @@ import ssl
 import stat
 import subprocess
 import sys
-
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 import pyarrow.parquet as pq
 import pyarrow as pa
 
 if __name__ == '__main__':
+
      configuracion = configparser.ConfigParser()
      configuracion.read('inconfig.cfg')
      ubicacion = '.\\pdf_output\\'
      opciones=[]
-     
+
+
      #Inicializacion
      opciones = datos_generales.universidades(opciones)
      competencias=[configuracion['competencias']['url'],configuracion['competencias']['tipo']]
      principal=configuracion['principal']['url']
      lista = [configuracion['basico']['url'],configuracion['calendario']['url'],configuracion['modulo']['url'],configuracion['metodologia']['url'],configuracion['sistemaforma']['url']]
-     """
+
      #Proceso de lectura
      for op in opciones:
           if open("Titulaciones2.txt", 'r').read().find("-" + op + "-") == -1:
@@ -64,16 +67,16 @@ if __name__ == '__main__':
                          else:
                               df_id.astype(str).to_parquet('Data.parquet')
 
-                        # u = open("Identificadores2.txt", mode="a")
-                        # u.write("-" + i + "-")
-                        # u.close()
+                         u = open("Identificadores2.txt", mode="a")
+                         u.write("-" + i + "-")
+                         u.close()
                     else:
                          print("Id Existe")
-              # f = open("Titulaciones2.txt", mode="a")
-              # f.write("-" + op + "-")
-              # f.close()
+               f = open("Titulaciones2.txt", mode="a")
+               f.write("-" + op + "-")
+               f.close()
           else:
                print("existe")
           print(op)
-     """
+
      #print(pd.read_parquet('data.parquet'))
