@@ -22,12 +22,16 @@ from openpyxl import Workbook
 from openpyxl import load_workbook
 import os.path as path
 import os
+import ssl
+import stat
+import subprocess
+import sys
+
+
 import pyarrow.parquet as pq
 import pyarrow as pa
 
-
 if __name__ == '__main__':
-
      configuracion = configparser.ConfigParser()
      configuracion.read('inconfig.cfg')
      ubicacion = '.\\pdf_output\\'
@@ -38,7 +42,7 @@ if __name__ == '__main__':
      competencias=[configuracion['competencias']['url'],configuracion['competencias']['tipo']]
      principal=configuracion['principal']['url']
      lista = [configuracion['basico']['url'],configuracion['calendario']['url'],configuracion['modulo']['url'],configuracion['metodologia']['url'],configuracion['sistemaforma']['url']]
-
+     """
      #Proceso de lectura
      for op in opciones:
           if open("Titulaciones2.txt", 'r').read().find("-" + op + "-") == -1:
@@ -48,7 +52,7 @@ if __name__ == '__main__':
 
                          df_id = datos_web.datos_web.control(lista, i, competencias, principal, op, list[1],
                                                                   configuracion['pdf']['url'], ubicacion)
-
+                         
                          print(df_id)
                          if path.exists('Data.parquet'):
 
@@ -60,16 +64,16 @@ if __name__ == '__main__':
                          else:
                               df_id.astype(str).to_parquet('Data.parquet')
 
-                         u = open("Identificadores2.txt", mode="a")
-                         u.write("-" + i + "-")
-                         u.close()
+                        # u = open("Identificadores2.txt", mode="a")
+                        # u.write("-" + i + "-")
+                        # u.close()
                     else:
                          print("Id Existe")
-               f = open("Titulaciones2.txt", mode="a")
-               f.write("-" + op + "-")
-               f.close()
+              # f = open("Titulaciones2.txt", mode="a")
+              # f.write("-" + op + "-")
+              # f.close()
           else:
                print("existe")
           print(op)
-
+     """
      #print(pd.read_parquet('data.parquet'))

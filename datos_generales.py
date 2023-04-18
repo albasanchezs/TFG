@@ -14,7 +14,9 @@ import pdfplumber
 
 #Extrae todos los identificativos de todas las universidades que hay en la web y lo introduce en una lista
 def universidades(opciones):
-     soup = BeautifulSoup( requests.get('https://www.educacion.gob.es/ruct/consultaestudios?actual=estudios').text, 'lxml')
+     time.sleep(1)
+     soup = BeautifulSoup(requests.get('https://www.educacion.gob.es/ruct/consultaestudios?actual=estudios').text, 'lxml')
+     time.sleep(2)
      opciones=[elem['value'] for elem in soup.find(id ='codigoUniversidad').find_all('option') if elem['value'] !="" ]
      return opciones
 
