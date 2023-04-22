@@ -39,12 +39,13 @@ if __name__ == '__main__':
      ubicacion = '.\\pdf_output\\'
      opciones=[]
 
-
+     """
      #Inicializacion
      opciones = datos_generales.universidades(opciones)
      competencias=[configuracion['competencias']['url'],configuracion['competencias']['tipo']]
      principal=configuracion['principal']['url']
      lista = [configuracion['basico']['url'],configuracion['calendario']['url'],configuracion['modulo']['url'],configuracion['metodologia']['url'],configuracion['sistemaforma']['url']]
+
 
      #Proceso de lectura
      for op in opciones:
@@ -79,4 +80,8 @@ if __name__ == '__main__':
                print("existe")
           print(op)
 
-     #print(pd.read_parquet('data.parquet'))
+     """
+     df=pd.read_parquet('data.parquet')
+     print(df)
+
+
