@@ -13,6 +13,11 @@ import logging
 import tabula
 import contractions
 import pdfplumber
+import re
+import requests
+from bs4 import BeautifulSoup
+
+
 
 class datos_web():
     """
@@ -23,21 +28,16 @@ class datos_web():
 
     """
     def __init__(self,logger=None):
-        if logger:
-            self._logger=logger
-        else:
-            logging.basicConfig(level='INFO')
-        return
+        self._logger = logger or logging.getLogger(__name__)
 
-
-    def control(lista,id,competencias,principal,op,cad,pdf,ubicacion):
+    def control(lista, id, competencias, principal, op, max_tabla, pdf, ubicacion):
           df = pd.DataFrame()
 
           for i in lista:
-            datos_web._Mode(i, id, df)
-          datos_web._Mode(principal, id, op, cad, df)
+              datos_web._Mode(i, id, df)
+          datos_web._Mode(principal, id, op, max_tabla, df)
           datos_web._Mode(competencias[0], id, competencias[1], df)
-          datos_web.descarga_pdf(pdf, id, ubicacion, df)
+          datos_web.dow_pdf(pdf, id, ubicacion, df)
 
           return df
 
@@ -54,11 +54,20 @@ class datos_web():
           mode_5 = 'planificacion.metodologias'
           mode_6 = 'planificacion.sistemas'
 
+          mode_url_to_func = {
+              mode_1: datos_web.get_basic_data,
+              mode_2: datos_web.get_competencies,
+              mode_3: datos_web.get_year,
+              mode_4: datos_web.get_info,
+              mode_5: datos_web.get_info,
+              mode_6: datos_web.get_info,
+          }
+
           if len(args)==3:
                mode_url = str(args[0])[str(args[0]).index('actual=menu.solicitud.') + 22:str(args[0]).index('&')]
-
+               func = mode_url_to_func[mode_url]
                if mode_url == mode_1:
-                    df_int = datos_web._datos_basicos(args[0], args[1])
+                    df_int = func(args[0], args[1])
                     args[2]['Nombre'] = df_int['Nombre']
                     args[2]['Conjunto'] = df_int['Conjunto']
                     args[2]['Rama'] = df_int['Rama']
@@ -66,22 +75,22 @@ class datos_web():
                     args[2]['Vinculacion'] = df_int['Vinculacion']
                     args[2]['Condigo de Agencia'] = df_int['Codigo de Agencia']
 
-                    time.sleep(2)
                if mode_url == mode_3:
-                   args[2]['calendario'] = datos_web._datos_calendarios(args[0], args[1])
-                   time.sleep(2)
-               if mode_url ==mode_4:
-                   args[2]['Modulo'] = datos_web._datos_tablas(args[0], args[1])
-                   time.sleep(2)
-               if mode_url ==mode_5:
-                   args[2]['Metodologia'] = datos_web._datos_tablas(args[0], args[1])
-                   time.sleep(2)
+                        args[2]['calendario'] = func(args[0], args[1])
+                        time.sleep(2)
+               if mode_url == mode_4:
+                        args[2]['Modulo'] = func(args[0], args[1])
+                        time.sleep(2)
+               if mode_url == mode_5:
+                        args[2]['Metodologia'] = func(args[0], args[1])
+                        time.sleep(2)
                if mode_url == mode_6:
-                   args[2]['Sistema de Formacion'] = datos_web._datos_tablas(args[0], args[1])
-                   time.sleep(2)
+                        args[2]['Sistema de Formacion'] = func(args[0], args[1])
 
+               time.sleep(2)
           elif len(args)==4:
                mode_url = str(args[0])[str(args[0]).index('actual=menu.solicitud.') + 22:str(args[0]).index('&')]
+               func = mode_url_to_func[mode_url]
                if mode_url == mode_2:
                     if args[2]:
                          for tipodecomp in args[2]:
@@ -90,16 +99,17 @@ class datos_web():
                                    nombre_competencia = "Compentencias Generales"
 
                               elif tipodecomp == 'T':
-                                   nombre_competencia = "Compentencias transversales"
+                                   nombre_competencia = "Compentencias Transversales"
 
                               elif tipodecomp == 'E':
                                    nombre_competencia = "Compentencias Especificas"
-                              args[3][nombre_competencia] = datos_web.datos_competencias(args[0],args[1],nombre_competencia)
+                              args[3][nombre_competencia] = func(args[0],args[1],nombre_competencia)
                               time.sleep(6)
           elif len(args)==5:
-              args[4]['Universidad'] = datos_web.tabla_inicial(args[0], args[1], args[2], args[3], 'Universidad')
+              args[4]['Universidad'] = datos_web.get_status(args[0], args[1], args[2], args[3], 'Universidad')
               time.sleep(3)
-              args[4]['Estado'] = datos_web.tabla_inicial(args[0], args[1], args[2], args[3], 'Estado')
+              args[4]['Estado'] = datos_web.get_status(args[0], args[1], args[2], args[3], 'Estado')
+
 
 
     def basico(url,var,id):
@@ -108,44 +118,38 @@ class datos_web():
           out = soup.findAll(attrs={"name": var})[0]['value']
         except Exception as e:
             out = "No encontrado"
+            logging.info(f"This data doesn't exist")
         return out
 
-    def _datos_basicos(url,id):
+    def get_basic_data(url,id):
           """
           :param url:  url basica de datos primarios; Nombre, agencia, conjunto, Rama
           :param id:   identificador de la titulacion indicada
           :return:     dataframe de los datos asociados al id
           """
-          dic={}
+          sleep_duration = 4
           time.sleep(4)
-          nom = datos_web.basico(url,"denominacion",id)
-          conju = datos_web.basico(url, "conjunto",id)
-          rama = datos_web.basico(url, "rama.codigo", id)
-          conv = datos_web.basico(url, "habilita", id)
-          vinculacion = datos_web.basico(url, "vinculado", id)
-          codigoAgencia = datos_web.basico(url, "codigoAgencia", id)
-
-          dic[id] = [nom, conju, rama, conv, vinculacion, codigoAgencia]
-          df_int = pd.DataFrame.from_dict(dic, orient='index').rename(
-               columns={0: 'Nombre', 1: 'Conjunto', 2: 'Rama', 3: 'Habilita', 4: 'Vinculacion', 5: 'Codigo de Agencia'})
+          variables = ["denominacion", "conjunto", "rama.codigo", "habilita", "vinculado", "codigoAgencia"]
+          data = [datos_web.basico(url, var, id) for var in variables]
+          df_int = pd.DataFrame([data], index=[id],
+                                columns=['Nombre', 'Conjunto', 'Rama', 'Habilita', 'Vinculacion', 'Codigo de Agencia'])
           return df_int
 
 
-    def _datos_calendarios(url, id):
+    def get_year(url, id):
           """
 
           :param url:  url que indica la fecha de inicio de la titulacion
           :param id:   identificador de la titulacion indicada
           :return:     diccionario con la fecha asociada al identificador
           """
-          time.sleep(4)
-          dic={}
-          output = datos_web.basico(url, "curso_Inicio", id)
-          dic[id]=output
-          return dic
+          sleep_duration = 4
+          time.sleep(sleep_duration)
+          fecha_in = datos_web.basico(url, "curso_Inicio", id)
+          return {id: fecha_in}
 
 
-    def datos_competencias(url,id,nombre_compt):
+    def get_competencies(url,id,nombre_compt):
           """
 
           :param url: url asociada a la parte de las tablas de competencias
@@ -153,47 +157,46 @@ class datos_web():
           :param nombre_compt: clase de competencia que se lee; especifica, general o transversal
           :return: diccionario del id asociado a una lista de competencias
           """
-          dic={}
-          t_competencias = re.sub('codigoin', id, url)
-          if nombre_compt == "Compentencias Generales":
-                   t_competencias = re.sub('palabratipocomp', 'generales', t_competencias)
-                   t_competencias = requests.get(re.sub('tipodecomp', 'G', t_competencias),verify=False)
-          elif nombre_compt == "Compentencias transversales":
-                    t_competencias = re.sub('palabratipocomp', 'transversales', t_competencias)
-                    t_competencias = requests.get(re.sub('tipodecomp', 'T', t_competencias),verify=False)
-          elif nombre_compt == "Compentencias Especificas":
-                     t_competencias = re.sub('palabratipocomp', 'especificas', t_competencias)
-                     t_competencias = requests.get(re.sub('tipodecomp', 'E', t_competencias),verify=False)
 
-          soup = BeautifulSoup(t_competencias.text, 'lxml')
+          competencies = {
+              "Compentencias Generales": {"palabra": "generales", "tipo": "G"},
+              "Compentencias Transversales": {"palabra": "transversales", "tipo": "T"},
+              "Compentencias Especificas": {"palabra": "especificas", "tipo": "E"}
+          }
+          url_params = competencies.get(nombre_compt)
+          t_competencias = re.sub('codigoin', id, url)
+          if url_params:
+              t_competencias = re.sub('palabratipocomp', url_params["palabra"], t_competencias)
+              t_competencias = requests.get(re.sub('tipodecomp', url_params["tipo"], t_competencias), verify=False)
+              soup = BeautifulSoup(t_competencias.text, 'lxml')
+              soup = BeautifulSoup(t_competencias.text, 'lxml')
           try:
-               df_sistemaforma = pd.read_html(str(soup.select('table')[0]))[0]
-               info= df_sistemaforma['Denominación'].tolist()
+              df_sistemaforma = pd.read_html(str(soup.select('table')[0]))[0]
+              info = df_sistemaforma['Denominación'].tolist()
           except Exception as e:
                info = 'No encontrado'
-          dic[id]=info
-          return dic
+          return {id:info}
 
 
-    def _datos_tablas(url,id):
+    def get_info(url,id):
           """
           :param url: url que puede leer sistemas de formacion de titulacion, modulos y metodologias existentes asociados al id
           :param id: identificador de la titulacion indicada
           :return: diccionario del id asociado a una lista de competencias
           """
-          time.sleep(4)
-          dic={}
+          sleep_duration = 4
+          time.sleep(sleep_duration)
           soup = BeautifulSoup(requests.get(re.sub('codigoin', id, url),verify=False).text, 'lxml')
           try:
                data = pd.read_html(str(soup.select('table')[0]))[0]
                info = data['Denominación'].tolist()
           except Exception as e:
                 info ="No encontrado"
-          dic[id] = info
-          return dic
+
+          return {id : info}
 
      #Creacion de la tabla inicial de la url que se le pasa y guarda nombre, uni,estado.
-    def tabla_inicial(url_tabla,id,op,cad,col):
+    def get_status(url_tabla,id,op,max_tabla,col):
           """
           :param url_tabla:  url general donde aparecen todas las titulaciones
           :param id:         id que busco para completar los datos
@@ -202,32 +205,27 @@ class datos_web():
           :param col:        leo columna univer o columna estado
           :return:           diccionario donde se asocia el id a la info guardada
           """
-          time.sleep(4)
-          numtablas=[]
-          encontrado=1
-          dic={}
-          while cad > 0:
-               numtablas.append(str(cad))
-               cad = cad - 1
-          url_tabla = re.sub('universidad', op, url_tabla)
-          for i in numtablas:
-               soup = BeautifulSoup(requests.get(re.sub('codigotablas', i, url_tabla),verify=False).text, 'lxml')
-               try:
-                    df_tabla = pd.read_html(str(soup.select('table')[0]))[0]
-                    for codigoentabla in df_tabla["Código"]:
-                         try:
-                            if str(codigoentabla) == id[0:7]:
-                                 #'Universidad'
-                                 info = df_tabla.loc[df_tabla['Código'] == codigoentabla][col].tolist()
-
-                         except Exception as e:
-                              info = "No encontrado"
-               except Exception as e:
-                    encontrado=0
-          dic[id]=info
+          sleep_duration = 4
+          dic = {}
+          for i in range(1, max_tabla + 1):
+              url = re.sub('codigotablas', str(i), re.sub('universidad', op, url_tabla))
+              try:
+                  soup = BeautifulSoup(requests.get(url, verify=False).text, 'lxml')
+                  df_tabla = pd.read_html(str(soup.select('table')[0]))[0]
+                  for codigo in df_tabla["Código"]:
+                      try:
+                          if str(codigo) == id[0:7]:
+                              info = df_tabla.loc[df_tabla['Código'] == codigo][col].tolist()
+                              dic[id] = info
+                              return {id : info}
+                      except Exception as e:
+                          return {id : "No encontrado"}
+              except Exception as e:
+                  print(f"Error while retrieving table {i}: {e}")
+          time.sleep(sleep_duration)
           return dic
 
-    def descarga_pdf(url_pdfs, id, ubicacion,df):
+    def dow_pdf(url_pdfs, id, ubicacion,df):
 
           """
           Descarga de url donde esta el plan de estudios
@@ -235,8 +233,7 @@ class datos_web():
           :param ubicacion: carpeta del proyecto donde guardo el pdf
           :param df:        guardo lo leido del pdf
           """
-
-          encontrado = 0
+          sleep_duration = 2
           soup_pdfs = BeautifulSoup(requests.get(re.sub('codigoin', id, url_pdfs),verify=False).text, 'lxml')
           try:
                doc = soup_pdfs.findAll(class_='pdf')
@@ -244,15 +241,14 @@ class datos_web():
                with open(ubicacion + str(id) + ".pdf", "wb") as file:
                     file.write(requests.get(enlace_pdf,verify=False).content)
                df['Texto'] = datos_web.des_text(id, ubicacion)
-               time.sleep(2)
+               time.sleep(sleep_duration)
                df['Tabla'] = datos_web.des_tabla(id, ubicacion)
-               time.sleep(2)
-
-               time.sleep(6)
+               time.sleep(sleep_duration)
 
           except Exception as e:
-               encontrado = 1
+               logging.info(f"pdf does not exist")
           return df
+
     def des_text(id, ubicacion):
          """
          :param id:     id que busco para completar los datos
@@ -283,14 +279,14 @@ class datos_web():
                          return (h_mid >=x0 and (h_mid < x1) and (v_mid > top) and (v_mid < bottom))
                     return not any(obj_in_bbox(__bbox) for __bbox in bboxes)
 
-                #Esto sería el texto
+
                 page_text = p.filter(not_within_bboxes).extract_text()
                 total_text.append(datos_generales.limpieza(page_text))
              info=total_text
          except Exception as e:
                  info= "No encontrado"
-         dic[id]=info
-         return dic
+                 logging.info(f"pdf does not exist")
+         return {id: info}
 
     def des_tabla(id, ubicacion):
          """
@@ -304,9 +300,9 @@ class datos_web():
            df=read_pdf(ubicacion + str(id) + ".pdf", pages="all", multiple_tables=True, encoding='latin-1')
            for u in range(len(df)):
               lista_tabla.append(df[u].to_numpy().tolist())
-             # print("-----------------------")
-             # print(df[u].to_numpy().transpose().tolist())
          except Exception as e:
                lista_tabla = "No encontrado"
-         dic[id]= lista_tabla
-         return dic
+               logging.info(f"pdf does not exist")
+         return {id: lista_tabla}
+
+
