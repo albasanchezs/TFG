@@ -34,7 +34,7 @@ if __name__ == '__main__':
      competencias = [configuracion['competencias']['url'],configuracion['competencias']['tipo']]
      principal = configuracion['principal']['url']
      lista = [configuracion['basico']['url'],configuracion['calendario']['url'],configuracion['modulo']['url'],configuracion['metodologia']['url'],configuracion['sistemaforma']['url']]
-
+    
         
      # Read existing data from files
      with open("Titulaciones2.txt", 'r') as f:
@@ -53,14 +53,16 @@ if __name__ == '__main__':
 
                          print(df_id)
 
-                         if path.exists('Data.parquet'):
-                             df = pd.read_parquet('Data.parquet')
+                         if path.exists('Data_example.parquet'):
+                             df = pd.read_parquet('Data_example.parquet')
                              # concatenar:
                              dfs = [df, df_id]
                              df_concat = pd.concat(dfs,ignore_index=True)
-                             df_concat.astype(str).to_parquet('Data.parquet')
+                             df_concat = df_concat.rename_axis('id').reset_index()
+                             df_concat.set_index('id', inplace=True)
+                             df_concat.astype(str).to_parquet('Data_example.parquet')
                          else:
-                             df_id.astype(str).to_parquet('Data.parquet')
+                             df_id.astype(str).to_parquet('Data_example.parquet')
 
                          with open("Identificadores2.txt", mode="a") as f:
                             f.write(f"-{i}-")
@@ -73,8 +75,8 @@ if __name__ == '__main__':
                logging.info(f"Title {op} already exists in file Titulaciones2.txt")
           print(op)
 
+     #df=pd.read_parquet('Data_example.parquet')
+     #print(df)
 
-     #df=pd.read_parquet('data.parquet')
-     #print(df["Compentencias transversales"])
 
 

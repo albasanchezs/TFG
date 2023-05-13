@@ -127,13 +127,12 @@ class datos_web():
           :param id:   identificador de la titulacion indicada
           :return:     dataframe de los datos asociados al id
           """
-          sleep_duration = 4
           time.sleep(4)
           variables = ["denominacion", "conjunto", "rama.codigo", "habilita", "vinculado", "codigoAgencia"]
-          data = [datos_web.basico(url, var, id) for var in variables]
-          df_int = pd.DataFrame([data], index=[id],
+          output = [datos_web.basico(url, var, id) for var in variables]
+          df_basic_data = pd.DataFrame([output], index=[id],
                                 columns=['Nombre', 'Conjunto', 'Rama', 'Habilita', 'Vinculacion', 'Codigo de Agencia'])
-          return df_int
+          return df_basic_data
 
 
     def get_year(url, id):
