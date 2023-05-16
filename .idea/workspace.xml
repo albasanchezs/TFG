@@ -5,14 +5,23 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="34b42f4d-42e5-49f3-a535-81dfa13d577c" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/TFG.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/TFG.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Identificadores2.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Identificadores2.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Titulaciones2.txt" beforeDir="false" afterPath="$PROJECT_DIR$/Titulaciones2.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data.parquet" beforeDir="false" afterPath="$PROJECT_DIR$/data.parquet" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/datos_web.py" beforeDir="false" afterPath="$PROJECT_DIR$/datos_web.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Anotaciones.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/DATA.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Data.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Identificadores.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Identificadores2.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Preproc.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Titulaciones.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Titulaciones2.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/datos_generales.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/datos_web.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/descarga_web.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/file.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/inconfig.py" beforeDir="false" afterPath="$PROJECT_DIR$/inconfig.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
