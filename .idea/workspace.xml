@@ -5,23 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="34b42f4d-42e5-49f3-a535-81dfa13d577c" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.gitmodules" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/NLPipe" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/topicmodeler" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Anotaciones.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/DATA.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Data.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Identificadores.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Identificadores2.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Preproc.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Titulaciones.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Titulaciones2.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/datos_generales.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/datos_web.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/descarga_web.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/file.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/inconfig.py" beforeDir="false" afterPath="$PROJECT_DIR$/inconfig.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ReadingPipe.py" beforeDir="false" afterPath="$PROJECT_DIR$/ReadingPipe.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data_aux/Titulaciones.txt" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

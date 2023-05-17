@@ -1,0 +1,6 @@
+[submodule "NLPipe"]
+	path = NLPipe
+	url = https://github.com/Nemesis1303/NLPipe.git
+[submodule "topicmodeler"]
+	path = topicmodeler
+	url = https://github.com/IntelCompH2020/topicmodeler.git

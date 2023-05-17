@@ -2,5 +2,7 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/NLPipe" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/topicmodeler" vcs="Git" />
   </component>
 </project>

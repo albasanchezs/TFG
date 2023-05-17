@@ -25,12 +25,13 @@ def main():
         description="ReadingPipe")
      parser.add_argument("--destination_path", type=str, default=None,
                          required=True, help="Path to save the data parquet")
-     parser.add_argument("--competences", type=str, default=None,
-                         required=False, help="Table of competencies that you want  to read,op: T (trasnverse), G (General), E (Specific)")
      parser.add_argument('--basico', default=False,
                          action='store_true',help="Download basic information about universities degrees.")
      parser.add_argument("--data", default=False,
                          action='store_true',help="Download the start date of university degrees.")
+     parser.add_argument("--competences", type=str, default=None,
+                         required=False,
+                         help="Table of competencies that you want  to read,op: T (trasnverse), G (General), E (Specific)")
      parser.add_argument("--module",default=False,
                          action='store_true', help="Download a table of subjects for each university degree.")
      parser.add_argument("--method", default=False,
@@ -105,9 +106,9 @@ def main():
      principal = configuracion['principal']['url']
 
      # Read existing data from files
-     with open(".\data_aux\Titulaciones2.txt", 'r') as f:
+     with open(".\data_aux\ Uni.txt", 'r') as f:
           titulaciones = f.read()
-     with open(".\data_aux\Identificadores2.txt", 'r') as f:
+     with open(".\data_aux\Ide.txt", 'r') as f:
           identificadores = f.read()
 
      #'.\output\Data_example.parquet'
@@ -132,17 +133,17 @@ def main():
                          else:
                              df_id.astype(str).to_parquet(destination_path)
 
-                         with open(".\data_aux\Identificadores2.txt", mode="a") as f:
+                         with open(".\data_aux\Ide.txt", mode="a") as f:
                             f.write(f"-{i}-")
 
                     else:
-                         logging.info(f"Identifier {i} already exists in file Identificadores2.txt for {op}")
+                         logging.info(f"Identifier {i} already exists in file Ide.txt for {op}")
 
-               with open(".\data_aux\Titulaciones2.txt", mode="a") as f:
+               with open(".\data_aux\ Uni.txt", mode="a") as f:
                   f.write(f"-{op}-")
-                  logging.info(f"Added title {op} to file Titulaciones2.txt")
+                  logging.info(f"Added title {op} to file Uni.txt")
           else:
-               logging.info(f"Title {op} already exists in file Titulaciones2.txt")
+               logging.info(f"Title {op} already exists in file Uni.txt")
           print(op)
 
 #Execute main
