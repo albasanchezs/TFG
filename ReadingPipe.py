@@ -47,7 +47,7 @@ def main():
      args = parser.parse_args()
      configuracion = configparser.ConfigParser()
      configuracion.read('inconfig.cfg')
-     ubicacion = ".\\output\\pdf_output"
+     ubicacion = ".\\pdf_output"
 
      #Create logger object
      logging.basicConfig(filename='logfile.log', level=logging.INFO)
@@ -106,9 +106,9 @@ def main():
      principal = configuracion['principal']['url']
 
      # Read existing data from files
-     with open(".\data_aux\ Uni.txt", 'r') as f:
+     with open('data\\Uni.txt', 'r') as f:
           titulaciones = f.read()
-     with open(".\data_aux\Ide.txt", 'r') as f:
+     with open("data\\Iden.txt", 'r') as f:
           identificadores = f.read()
 
      #'.\output\Data_example.parquet'
@@ -133,13 +133,13 @@ def main():
                          else:
                              df_id.astype(str).to_parquet(destination_path)
 
-                         with open(".\data_aux\Ide.txt", mode="a") as f:
+                         with open("data\\Iden.txt", mode="a") as f:
                             f.write(f"-{i}-")
 
                     else:
                          logging.info(f"Identifier {i} already exists in file Ide.txt for {op}")
 
-               with open(".\data_aux\ Uni.txt", mode="a") as f:
+               with open("data\\Uni.txt", mode="a") as f:
                   f.write(f"-{op}-")
                   logging.info(f"Added title {op} to file Uni.txt")
           else:
